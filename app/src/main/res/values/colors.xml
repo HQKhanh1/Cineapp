@@ -10,4 +10,8 @@
     <color name="accent_red">#E2363C</color>
     <color name="grey">#737373</color>
     <color name="orange">#EC7455</color>
+    <color name="colorPrimaryDark">#3262C4</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorRed">#C11515</color>
 </resources>

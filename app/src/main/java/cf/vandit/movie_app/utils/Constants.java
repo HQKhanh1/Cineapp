@@ -4,6 +4,7 @@ public class Constants {
     public static final String API_KEY = "9d00cb45adf14432fa3cb46414125591";
     public static final String YOUTUBE_API_KEY = "YOUTUBE-API-KEY";
     public static final String BASE_URL = "https://api.themoviedb.org/3/";
+    public static final String SPRING_BOOT_URL = "http://192.168.1.62:8080";
     public static final String MOVIE_STREAM_URL = "CANNOT-BE-DISCLOSED";
     public static final String SERIES_STREAM_URL = "CANNOT-BE-DISCLOSED";
     public static final String IMAGE_LOADING_BASE_URL_1280 = "https://image.tmdb.org/t/p/w1280/";
