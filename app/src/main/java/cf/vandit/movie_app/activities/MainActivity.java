@@ -23,24 +23,14 @@ public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigationView;
     Toolbar toolbar;
-
+    public static AccountInfo accountInfo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Intent intent= getIntent();
-        Bundle bundle= intent.getExtras();
-        AccountInfo accountInfo= new AccountInfo();
-        if (bundle!=null){
-            accountInfo.setUsername(bundle.getString("username",""));
-            accountInfo.setEmail(bundle.getString("email",""));
-            accountInfo.setBirthday(bundle.getString("birthday",""));
-            accountInfo.setFirstname(bundle.getString("firstname",""));
-            accountInfo.setLastname(bundle.getString("lastname",""));
-            accountInfo.setGender(bundle.getBoolean("gender", Boolean.parseBoolean("")));
-            accountInfo.setPassword(bundle.getString("password",""));
-            System.out.println("username MainActivity= "+ accountInfo);
-        }
+
+        accountInfo= (AccountInfo) getIntent().getSerializableExtra("accountInfo");
+
         bottomNavigationView = findViewById(R.id.bottom_nav);
         toolbar = findViewById(R.id.toolbar_main);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MovieFragment()).commit();

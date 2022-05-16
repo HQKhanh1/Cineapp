@@ -13,8 +13,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.Serializable;
+
 import cf.vandit.movie_app.R;
 import cf.vandit.movie_app.retrofit.RetrofitService;
+import cf.vandit.movie_app.retrofit.dto.AccountInfo;
 import cf.vandit.movie_app.retrofit.request.LoginRequest;
 import cf.vandit.movie_app.retrofit.response.LoginResponse;
 import retrofit2.Call;
@@ -25,6 +28,7 @@ public class LoginActivity extends AppCompatActivity {
 
     EditText username, password;
     Button btnLogin;
+    TextView forgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,12 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(LoginActivity.this, ForgotPassword.class));
+            }
+        });
     }
 
     public void login(){
@@ -73,17 +83,24 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             System.out.println(loginResponse);
-                            Intent intent= new Intent(LoginActivity.this, MainActivity.class);
-                            Bundle bundle= new Bundle();
-                            bundle.putString("username",loginResponse.getUsername());
-                            bundle.putString("password",loginResponse.getPassword());
-                            bundle.putString("firstname",loginResponse.getFirstname());
-                            bundle.putString("lastname",loginResponse.getLastname());
-                            bundle.putString("email",loginResponse.getEmail());
-                            bundle.putString("birthday",loginResponse.getBirthday());
-                            bundle.putBoolean("gender", loginResponse.isGender());
-                            intent.putExtras(bundle);
-                            startActivity(intent);
+
+                            Call<AccountInfo> accountInfoCall= RetrofitService.getAccountService().getAccountInfo(loginResponse.getUsername());
+                            accountInfoCall.enqueue(new Callback<AccountInfo>() {
+                                @Override
+                                public void onResponse(Call<AccountInfo> call, Response<AccountInfo> response) {
+                                    AccountInfo accountInfo = response.body();
+                                    System.out.println("accountDetail" + accountInfo);
+                                    Intent intent= new Intent(LoginActivity.this, MainActivity.class);
+                                    intent.putExtra("accountInfo", accountInfo);
+                                    startActivity(intent);
+                                }
+
+                                @Override
+                                public void onFailure(Call<AccountInfo> call, Throwable t) {
+
+                                }
+                            });
+
                         }
                     }, 700);
                 }else {
@@ -102,5 +119,6 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin= findViewById(R.id.btnlogin);
         username= findViewById(R.id.inputUsername);
         password= findViewById(R.id.inputPassword);
+        forgotPassword= findViewById(R.id.forgotPassword);
     }
 }

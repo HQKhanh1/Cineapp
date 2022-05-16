@@ -1,6 +1,8 @@
 package cf.vandit.movie_app.retrofit.dto;
 
-public class AccountInfo {
+import java.io.Serializable;
+
+public class AccountInfo implements Serializable {
     private String username;
     private String password;
     private boolean enabled;
