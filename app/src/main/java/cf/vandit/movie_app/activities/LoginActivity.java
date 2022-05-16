@@ -73,7 +73,17 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             System.out.println(loginResponse);
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("data",loginResponse.getUsername()));
+                            Intent intent= new Intent(LoginActivity.this, MainActivity.class);
+                            Bundle bundle= new Bundle();
+                            bundle.putString("username",loginResponse.getUsername());
+                            bundle.putString("password",loginResponse.getPassword());
+                            bundle.putString("firstname",loginResponse.getFirstname());
+                            bundle.putString("lastname",loginResponse.getLastname());
+                            bundle.putString("email",loginResponse.getEmail());
+                            bundle.putString("birthday",loginResponse.getBirthday());
+                            bundle.putBoolean("gender", loginResponse.isGender());
+                            intent.putExtras(bundle);
+                            startActivity(intent);
                         }
                     }, 700);
                 }else {

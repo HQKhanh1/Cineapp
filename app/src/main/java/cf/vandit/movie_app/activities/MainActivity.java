@@ -1,5 +1,6 @@
 package cf.vandit.movie_app.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -13,8 +14,10 @@ import com.google.android.material.navigation.NavigationBarView;
 import cf.vandit.movie_app.R;
 import cf.vandit.movie_app.fragments.FavouritesFragment;
 import cf.vandit.movie_app.fragments.MovieFragment;
+import cf.vandit.movie_app.fragments.ProfileFragment;
 import cf.vandit.movie_app.fragments.SearchFragment;
 import cf.vandit.movie_app.fragments.SeriesFragment;
+import cf.vandit.movie_app.retrofit.dto.AccountInfo;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,6 +28,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Intent intent= getIntent();
+        Bundle bundle= intent.getExtras();
+        AccountInfo accountInfo= new AccountInfo();
+        if (bundle!=null){
+            accountInfo.setUsername(bundle.getString("username",""));
+            accountInfo.setEmail(bundle.getString("email",""));
+            accountInfo.setBirthday(bundle.getString("birthday",""));
+            accountInfo.setFirstname(bundle.getString("firstname",""));
+            accountInfo.setLastname(bundle.getString("lastname",""));
+            accountInfo.setGender(bundle.getBoolean("gender", Boolean.parseBoolean("")));
+            accountInfo.setPassword(bundle.getString("password",""));
+            System.out.println("username MainActivity= "+ accountInfo);
+        }
         bottomNavigationView = findViewById(R.id.bottom_nav);
         toolbar = findViewById(R.id.toolbar_main);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MovieFragment()).commit();
@@ -40,12 +56,6 @@ public class MainActivity extends AppCompatActivity {
                             toolbar.setTitle("Movies");
                         }
                         break;
-                    case R.id.nav_series:
-                        if (!getSupportFragmentManager().findFragmentById(R.id.fragment_container).getClass().getSimpleName().equals("SeriesFragment")) {
-                            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SeriesFragment()).commit();
-                            toolbar.setTitle("Series");
-                        }
-                        break;
                     case R.id.nav_search:
                         if (!getSupportFragmentManager().findFragmentById(R.id.fragment_container).getClass().getSimpleName().equals("SearchFragment")) {
                             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SearchFragment()).commit();
@@ -56,6 +66,12 @@ public class MainActivity extends AppCompatActivity {
                         if (!getSupportFragmentManager().findFragmentById(R.id.fragment_container).getClass().getSimpleName().equals("FavouritesFragment")) {
                             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FavouritesFragment()).commit();
                             toolbar.setTitle("Favourites");
+                        }
+                        break;
+                    case R.id.nav_profile:
+                        if (!getSupportFragmentManager().findFragmentById(R.id.fragment_container).getClass().getSimpleName().equals("ProfileFragment")){
+                            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment()).commit();
+                            toolbar.setTitle("Profile");
                         }
                         break;
                 }

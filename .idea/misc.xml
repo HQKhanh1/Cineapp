@@ -42,6 +42,10 @@
         <entry key="..\:/Yuno/Android/CuoiKy/Cineapp/app/src/main/res/drawable/input_bg.xml" value="0.174" />
         <entry key="..\:/Yuno/Android/CuoiKy/Cineapp/app/src/main/res/layout/activity_login.xml" value="0.29936594202898553" />
         <entry key="..\:/Yuno/Android/CuoiKy/Cineapp/app/src/main/res/layout/activity_register.xml" value="0.29936594202898553" />
+        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/activity_change_password.xml" value="0.29936594202898553" />
+        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/activity_profile.xml" value="0.29936594202898553" />
+        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/fragment_profile.xml" value="0.29936594202898553" />
+        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/menu/bottom_navigation.xml" value="0.1" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2984375" />
         <entry key="app/src/main/res/drawable/background_gradient.xml" value="0.2984375" />
         <entry key="app/src/main/res/drawable/backround_gradient.xml" value="0.2984375" />

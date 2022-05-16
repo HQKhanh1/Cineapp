@@ -7,11 +7,6 @@
         android:iconTint="@color/white"
         android:title="Movies"/>
 
-    <item
-        android:id="@+id/nav_series"
-        android:icon="@drawable/ic_tv"
-        android:iconTint="@color/white"
-        android:title="Series"/>
 
     <item
         android:id="@+id/nav_search"
@@ -24,5 +19,9 @@
         android:icon="@drawable/ic_favourite_outlined"
         android:iconTint="@color/white"
         android:title="Favourites"/>
-
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_person"
+        android:iconTint="@color/white"
+        android:title="Profile"/>
 </menu>

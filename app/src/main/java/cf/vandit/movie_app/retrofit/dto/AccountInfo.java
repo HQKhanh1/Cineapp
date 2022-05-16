@@ -1,9 +1,6 @@
-package cf.vandit.movie_app.retrofit.response;
+package cf.vandit.movie_app.retrofit.dto;
 
-import androidx.annotation.NonNull;
-
-public class LoginResponse {
-    private int id;
+public class AccountInfo {
     private String username;
     private String password;
     private boolean enabled;
@@ -16,33 +13,6 @@ public class LoginResponse {
     private String phoneNumber;
     private boolean gender;
     private String authenticationToken;
-
-    public LoginResponse(int id, String username, String password, boolean enabled, String email, String avatar, String firstname, String lastname, String birthday, String address, String phoneNumber, boolean gender, String authenticationToken) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.enabled = enabled;
-        this.email = email;
-        this.avatar = avatar;
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.birthday = birthday;
-        this.address = address;
-        this.phoneNumber = phoneNumber;
-        this.gender = gender;
-        this.authenticationToken= authenticationToken;
-    }
-
-    public LoginResponse() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getUsername() {
         return username;
@@ -140,23 +110,39 @@ public class LoginResponse {
         this.authenticationToken = authenticationToken;
     }
 
-    @NonNull
+    public AccountInfo() {
+    }
+
+    public AccountInfo(String username, String password, boolean enabled, String email, String avatar, String firstname, String lastname, String birthday, String address, String phoneNumber, boolean gender, String authenticationToken) {
+        this.username = username;
+        this.password = password;
+        this.enabled = enabled;
+        this.email = email;
+        this.avatar = avatar;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.birthday = birthday;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.gender = gender;
+        this.authenticationToken = authenticationToken;
+    }
+
     @Override
     public String toString() {
-        return "LoginResponse{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
+        return "AccountInfo{" +
+                "username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", enabled=" + enabled +
                 ", email='" + email + '\'' +
                 ", avatar='" + avatar + '\'' +
                 ", firstname='" + firstname + '\'' +
                 ", lastname='" + lastname + '\'' +
-                ", birthday=" + birthday +
+                ", birthday='" + birthday + '\'' +
                 ", address='" + address + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
-                ", gender=" + gender + '\'' +
-                ", authenticationToken=" + authenticationToken +
+                ", gender=" + gender +
+                ", authenticationToken='" + authenticationToken + '\'' +
                 '}';
     }
 }
