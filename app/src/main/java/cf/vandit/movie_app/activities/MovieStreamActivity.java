@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.PlayerView;
 
 import cf.vandit.movie_app.R;
+import cf.vandit.movie_app.retrofit.dto.MovieDetailDTO;
 
 public class MovieStreamActivity extends AppCompatActivity {
 
@@ -28,11 +29,15 @@ public class MovieStreamActivity extends AppCompatActivity {
     boolean isFullScreen = false;
     boolean isLock = false;
     Handler handler;
+    MovieDetailDTO movieDetailDTO = new MovieDetailDTO();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_watch);
+        movieDetailDTO = (MovieDetailDTO) getIntent().getSerializableExtra("movie_stream");
+        if (movieDetailDTO == null) finish();
+
         handler = new Handler(Looper.getMainLooper());
 
         PlayerView playerView = findViewById(R.id.player);
@@ -97,12 +102,14 @@ public class MovieStreamActivity extends AppCompatActivity {
             }
         });
         //pass the video link and play
-        Uri videoUrl = Uri.parse("https://playlord.xyz/stream/1080/EHXmtE9JvtqS7OB.mp4");
+        System.out.println("\n\n\n\n\n\n\n\nLink Moive: " + movieDetailDTO.getLinkMovie());
+        Uri videoUrl = Uri.parse(movieDetailDTO.getLinkMovie());
         MediaItem media = MediaItem.fromUri(videoUrl);
         exoPlayer.setMediaItem(media);
         exoPlayer.prepare();
         exoPlayer.play();
     }
+
 
     private Runnable updateProgressAction = () -> onProgress();
 

@@ -1,7 +1,6 @@
 package cf.vandit.movie_app.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,16 +14,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import cf.vandit.movie_app.R;
-import cf.vandit.movie_app.activities.ViewAllMoviesActivity;
-import cf.vandit.movie_app.network.movie.MovieBrief;
-import cf.vandit.movie_app.utils.Constants;
-import cf.vandit.movie_app.utils.NestedRecViewModel;
+import cf.vandit.movie_app.retrofit.dto.MovieDetailDTO;
 
 public class MoviesNestedRecViewAdapter extends RecyclerView.Adapter<MoviesNestedRecViewAdapter.ViewHolder> {
-    private List<NestedRecViewModel> mNestedList;
+    private List<MovieDetailDTO> mNestedList;
     private Context mContext;
 
-    public MoviesNestedRecViewAdapter(List<NestedRecViewModel> mNestedList, Context mContext) {
+    public MoviesNestedRecViewAdapter(List<MovieDetailDTO> mNestedList, Context mContext) {
         this.mNestedList = mNestedList;
         this.mContext = mContext;
     }
@@ -192,7 +188,7 @@ public class MoviesNestedRecViewAdapter extends RecyclerView.Adapter<MoviesNeste
 //                break;
 //        }
 
-        setMovieRecView(holder.nested_recView, mNestedList.get(position).getmMovies());
+        setMovieRecView(holder.nested_recView, mNestedList);
     }
 
     @Override
@@ -216,7 +212,7 @@ public class MoviesNestedRecViewAdapter extends RecyclerView.Adapter<MoviesNeste
         }
     }
 
-    private void setMovieRecView(RecyclerView recyclerView, List<MovieBrief> mMovies){
+    private void setMovieRecView(RecyclerView recyclerView, List<MovieDetailDTO> mMovies){
         MovieBriefSmallAdapter mMoviesAdapter = new MovieBriefSmallAdapter(mMovies, mContext);
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(mMoviesAdapter);

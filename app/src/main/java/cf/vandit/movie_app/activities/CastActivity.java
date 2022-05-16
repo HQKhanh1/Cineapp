@@ -1,11 +1,5 @@
 package cf.vandit.movie_app.activities;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -14,6 +8,12 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -28,8 +28,6 @@ import com.wang.avi.AVLoadingIndicatorView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import cf.vandit.movie_app.R;
@@ -42,13 +40,14 @@ import cf.vandit.movie_app.network.series.SeriesCastOfPerson;
 import cf.vandit.movie_app.network.series.SeriesCastsOfPersonResponse;
 import cf.vandit.movie_app.request.ApiClient;
 import cf.vandit.movie_app.request.ApiInterface;
+import cf.vandit.movie_app.retrofit.dto.MovieCastDTO;
 import cf.vandit.movie_app.utils.Constants;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class CastActivity extends AppCompatActivity {
-    private int mPersonId;
+    private MovieCastDTO mPersonId;
 
     private ImageButton cast_backBtn;
 
@@ -87,9 +86,8 @@ public class CastActivity extends AppCompatActivity {
         setContentView(R.layout.activity_cast);
 
         Intent receivedIntent = getIntent();
-        mPersonId = receivedIntent.getIntExtra("person_id", -1);
+        mPersonId = (MovieCastDTO) receivedIntent.getSerializableExtra("person_cast");
 
-        if(mPersonId == -1) finish();
 
         cast_backBtn = findViewById(R.id.cast_back_btn);
 
@@ -136,96 +134,77 @@ public class CastActivity extends AppCompatActivity {
     }
 
     private void loadActivity(){
-        ApiInterface apiInterface = ApiClient.getMovieApi();
-        mPersonDetailsCall = apiInterface.getPersonDetails(mPersonId, Constants.API_KEY);
-        mPersonDetailsCall.enqueue(new Callback<Person>() {
-            @Override
-            public void onResponse(Call<Person> call, Response<Person> response) {
-                if (!response.isSuccessful()) {
-                    mPersonDetailsCall = call.clone();
-                    mPersonDetailsCall.enqueue(this);
-                    return;
-                }
-
-                if (response.body() == null) return;
-
-                cast_appbar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
-                    if (appBarLayout.getTotalScrollRange() + verticalOffset == 0) {
-                        if (response.body().getName() != null)
-                            cast_collapsingToolbar.setTitle(response.body().getName());
-                        else
-                            cast_collapsingToolbar.setTitle("");
-                        cast_toolbar.setVisibility(View.VISIBLE);
-                    } else {
-                        cast_collapsingToolbar.setTitle("");
-                        cast_toolbar.setVisibility(View.INVISIBLE);
-                    }
-                });
-
-                Glide.with(getApplicationContext()).load(Constants.IMAGE_LOADING_BASE_URL_1280 + response.body().getProfilePath())
-                        .centerCrop()
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .listener(new RequestListener<Drawable>() {
-                            @Override
-                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                cast_progress_bar.setVisibility(View.GONE);
-                                return false;
-                            }
-
-                            @Override
-                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                cast_progress_bar.setVisibility(View.GONE);
-                                return false;
-                            }
-                        })
-                        .into(cast_imageView);
-
-                if (response.body().getName() != null)
-                    cast_name.setText(response.body().getName());
+        cast_appbar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
+            if (appBarLayout.getTotalScrollRange() + verticalOffset == 0) {
+                if (mPersonId.getName() != null)
+                    cast_collapsingToolbar.setTitle(mPersonId.getName());
                 else
-                    cast_name.setText("");
+                    cast_collapsingToolbar.setTitle("");
+                cast_toolbar.setVisibility(View.VISIBLE);
+            } else {
+                cast_collapsingToolbar.setTitle("");
+                cast_toolbar.setVisibility(View.INVISIBLE);
+            }
+        });
 
-                if (response.body().getPlaceOfBirth() != null && !response.body().getPlaceOfBirth().trim().isEmpty())
-                    cast_birthplace.setText(response.body().getPlaceOfBirth());
-
-                if (response.body().getBiography() != null && !response.body().getBiography().trim().isEmpty()) {
-                    cast_bio_heading.setVisibility(View.VISIBLE);
-                    cast_bio.setText(response.body().getBiography());
-
-                    if(cast_bio.getLineCount() == 7){
-                        cast_read_more.setVisibility(View.VISIBLE);
-                    } else {
-                        cast_read_more.setVisibility(View.GONE);
+        Glide.with(getApplicationContext()).load(mPersonId.getAvatar())
+                .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        cast_progress_bar.setVisibility(View.GONE);
+                        return false;
                     }
 
-                    cast_read_more.setOnClickListener(view -> {
-                        if(cast_read_more.getText() == "Read more"){
-                            cast_bio.setMaxLines(Integer.MAX_VALUE);
-                            cast_read_more.setText("Read less");
-                        } else {
-                            cast_bio.setMaxLines(7);
-                            cast_read_more.setText("Read more");
-                        }
-                    });
-                }
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        cast_progress_bar.setVisibility(View.GONE);
+                        return false;
+                    }
+                })
+                .into(cast_imageView);
 
-                setAge(response.body().getDateOfBirth());
-                setMovieCast(response.body().getId());
-                setTVShowCast(response.body().getId());
+        if (mPersonId.getName() != null)
+            cast_name.setText(mPersonId.getName());
+        else
+            cast_name.setText("");
+
+//        if (mPersonId.getPlaceOfBirth() != null && !response.body().getPlaceOfBirth().trim().isEmpty())
+//            cast_birthplace.setText(response.body().getPlaceOfBirth());
+
+        if (mPersonId.getStory() != null && !mPersonId.getStory().trim().isEmpty()) {
+            cast_bio_heading.setVisibility(View.VISIBLE);
+            cast_bio.setText(mPersonId.getStory());
+
+            if(cast_bio.getLineCount() == 7){
+                cast_read_more.setVisibility(View.VISIBLE);
+            } else {
+                cast_read_more.setVisibility(View.GONE);
             }
 
-            @Override
-            public void onFailure(Call<Person> call, Throwable t) {}
-        });
+            cast_read_more.setOnClickListener(view -> {
+                if(cast_read_more.getText() == "Read more"){
+                    cast_bio.setMaxLines(Integer.MAX_VALUE);
+                    cast_read_more.setText("Read less");
+                } else {
+                    cast_bio.setMaxLines(7);
+                    cast_read_more.setText("Read more");
+                }
+            });
+        }
+
+        setAge(mPersonId.getBirthday());
+//        setMovieCast();
     }
 
     private void setAge(String dateOfBirthString) {
+        cast_age.setText(dateOfBirthString);
         if (dateOfBirthString != null && !dateOfBirthString.trim().isEmpty()) {
             SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
             SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
             try {
-                Date releaseDate = sdf1.parse(dateOfBirthString);
-                cast_age.setText((Calendar.getInstance().get(Calendar.YEAR) - Integer.parseInt(sdf2.format(releaseDate))) + "");
+                cast_age.setText(sdf1.parse(dateOfBirthString).toString());
             } catch (ParseException e) {
                 e.printStackTrace();
             }

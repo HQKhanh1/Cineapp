@@ -35,28 +35,25 @@ import java.util.List;
 import cf.vandit.movie_app.R;
 import cf.vandit.movie_app.adapters.MovieBriefSmallAdapter;
 import cf.vandit.movie_app.adapters.MovieCastsAdapter;
+import cf.vandit.movie_app.adapters.TrailerAdapter;
+import cf.vandit.movie_app.database.DatabaseHelper;
 import cf.vandit.movie_app.database.movies.FavMovie;
 import cf.vandit.movie_app.database.movies.MovieDatabase;
 import cf.vandit.movie_app.network.movie.SimilarMoviesResponse;
-import cf.vandit.movie_app.adapters.TrailerAdapter;
-import cf.vandit.movie_app.network.movie.Genre;
-import cf.vandit.movie_app.network.movie.Movie;
-import cf.vandit.movie_app.network.movie.MovieBrief;
-import cf.vandit.movie_app.network.movie.MovieCastBrief;
-import cf.vandit.movie_app.network.movie.MovieCreditsResponse;
 import cf.vandit.movie_app.network.videos.Trailer;
 import cf.vandit.movie_app.network.videos.TrailersResponse;
-import cf.vandit.movie_app.request.ApiClient;
-import cf.vandit.movie_app.request.ApiInterface;
+import cf.vandit.movie_app.retrofit.RetrofitService;
+import cf.vandit.movie_app.retrofit.dto.MovieCastDTO;
+import cf.vandit.movie_app.retrofit.dto.MovieDetailDTO;
+import cf.vandit.movie_app.retrofit.dto.MovieGenreDTO;
 import cf.vandit.movie_app.utils.Constants;
-import cf.vandit.movie_app.database.DatabaseHelper;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
-    private int movieId;
+    private MovieDetailDTO movieDetail = new MovieDetailDTO();
     private String imdbId = "tt0137523";
 
     private ImageView movie_poster;
@@ -84,14 +81,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private RecyclerView movie_cast;
     private RecyclerView movie_recommended;
 
-    private Call<Movie> mMovieDetailsCall;
+//    private Call<Movie> mMovieDetailsCall;
+    private Call<MovieDetailDTO> mMovieDetailsCall;
     private Call<TrailersResponse> mMovieTrailersCall;
-    private Call<MovieCreditsResponse> mMovieCreditsCall;
+    private Call<List<MovieCastDTO>> mMovieCreditsCall;
     private Call<SimilarMoviesResponse> mSimilarMoviesCall;
 
     private List<Trailer> mTrailers;
-    private List<MovieCastBrief> mCasts;
-    private List<MovieBrief> mSimilarMovies;
+    private List<MovieCastDTO> mCasts;
 
     private TrailerAdapter mTrailerAdapter;
     private MovieCastsAdapter mCastAdapter;
@@ -141,15 +138,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         movie_recommended_heading = (TextView) findViewById(R.id.movie_details_recommended_heading);
         movie_recommended = (RecyclerView) findViewById(R.id.movie_details_recommended);
-        mSimilarMovies = new ArrayList<>();
-        mSimilarMoviesAdapter = new MovieBriefSmallAdapter(mSimilarMovies, MovieDetailsActivity.this);
+//        mSimilarMoviesAdapter = new MovieBriefSmallAdapter(mSimilarMovies, MovieDetailsActivity.this);
         movie_recommended.setAdapter(mSimilarMoviesAdapter);
         movie_recommended.setLayoutManager(new LinearLayoutManager(MovieDetailsActivity.this, LinearLayoutManager.HORIZONTAL, false));
 
         Intent receivedIntent = getIntent();
-        movieId = receivedIntent.getIntExtra("movie_id", -1);
+        movieDetail = (MovieDetailDTO) receivedIntent.getSerializableExtra("movie_detail");
 
-        if (movieId==-1) finish();
+        if (movieDetail == null) finish();
 
         final FavMovie favMovie = (FavMovie) getIntent().getSerializableExtra("name");
 
@@ -171,12 +167,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void loadActivity(FavMovie mFavMovie){
-        ApiInterface apiInterface = ApiClient.getMovieApi();
-        mMovieDetailsCall = apiInterface.getMovieDetails(movieId, Constants.API_KEY);
-        mMovieDetailsCall.enqueue(new Callback<Movie>() {
+        final MovieDetailDTO movieDetailDTO = new MovieDetailDTO();
+        mMovieDetailsCall = RetrofitService.getMovieService().getMovieDetailById(movieDetail.getId());
+        mMovieDetailsCall.enqueue(new Callback<MovieDetailDTO>() {
             @Override
-            public void onResponse(Call<Movie> call, Response<Movie> response) {
-
+            public void onResponse(Call<MovieDetailDTO> call, Response<MovieDetailDTO> response) {
                 if (!response.isSuccessful()) {
                     mMovieDetailsCall = call.clone();
                     mMovieDetailsCall.enqueue(this);
@@ -185,11 +180,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
                 if (response.body() == null) return;
 
-                imdbId = response.body().getImdbId();
                 movie_stream_fab.setEnabled(true);
 
                 Glide.with(getApplicationContext())
-                        .load(Constants.IMAGE_LOADING_BASE_URL_1280 + response.body().getBackdropPath())
+                        .load(response.body().getPoster())
                         .centerCrop()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .listener(new RequestListener<Drawable>() {
@@ -212,24 +206,29 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 else
                     movie_title.setText("");
 
-                if (response.body().getOverview() != null && !response.body().getOverview().trim().isEmpty()) {
+                if (response.body().getDetail() != null && !response.body().getDetail().trim().isEmpty()) {
                     movie_story_line_heading.setVisibility(View.VISIBLE);
-                    movie_story_line.setText(response.body().getOverview());
+                    movie_story_line.setText(response.body().getDetail());
                 } else {
                     movie_story_line.setText("");
                 }
-
-                setFavourite(response.body().getId(), response.body().getPosterPath(), response.body().getTitle(), mFavMovie);
-                setYear(response.body().getReleaseDate());
-                setGenres(response.body().getGenres());
-                setDuration(response.body().getRuntime());
-                setTrailers();
-                setCasts();
-                setSimilarMovies();
+                String day = new StringBuilder().append(response.body().getReleaseDate().get(2))
+                        .append("-")
+                        .append(response.body().getReleaseDate().get(1))
+                        .append("-")
+                        .append(response.body().getReleaseDate().get(0)).toString();
+                setFavourite(response.body().getId(), response.body().getPoster(), response.body().getTitle(), mFavMovie);
+                setYear(day);
+                setGenres(response.body().getId());
+                setDuration(response.body().getMovieDuration());
+//                setTrailers();
+                setCasts(response.body().getId());
             }
 
             @Override
-            public void onFailure(Call<Movie> call, Throwable t) {}
+            public void onFailure(Call<MovieDetailDTO> call, Throwable t) {
+
+            }
         });
     }
 
@@ -290,12 +289,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void setYear(String releaseDateString) {
+        movie_year.setText(releaseDateString);
         if (releaseDateString != null && !releaseDateString.trim().isEmpty()) {
             SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
             SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
             try {
                 Date releaseDate = sdf1.parse(releaseDateString);
-                movie_year.setText(sdf2.format(releaseDate));
+                movie_year.setText("2022");
+//                movie_year.setText(sdf2.format(releaseDate));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -304,110 +305,122 @@ public class MovieDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void setGenres(List<Genre> genresList) {
-        String genres = "";
-        if (genresList != null) {
-            if(genresList.size() < 3) {
-                for (int i = 0; i < genresList.size(); i++) {
-                    if (genresList.get(i) == null) continue;
-                    if (i == genresList.size() - 1) {
-                        if(genresList.get(i).getGenreName().equals("Science Fiction")) {
-                            genres = genres.concat("Sci-Fi");
-                        } else {
-                            genres = genres.concat(genresList.get(i).getGenreName());
-                        }
-                    } else {
-                        if(genresList.get(i).getGenreName().equals("Science Fiction")) {
-                            genres = genres.concat("Sci-Fi" + ", ");
-                        } else {
-                            genres = genres.concat(genresList.get(i).getGenreName() + ", ");
-                        }
-                    }
-                }
-            } else {
-                for (int i = 0; i < 3; i++) {
-                    if (genresList.get(i) == null) continue;
-                    if (i == 2) {
-                        if(genresList.get(i).getGenreName().equals("Science Fiction")) {
-                            genres = genres.concat("Sci-Fi");
-                        } else {
-                            genres = genres.concat(genresList.get(i).getGenreName());
-                        }
-                    } else {
-                        if(genresList.get(i).getGenreName().equals("Science Fiction")) {
-                            genres = genres.concat("Sci-Fi" + ", ");
-                        } else {
-                            genres = genres.concat(genresList.get(i).getGenreName() + ", ");
-                        }
-                    }
-                }
-            }
-        }
-        String x = movie_year.getText().toString();
-        if(!x.equals("") && !genres.equals("")){
-            movie_year_separator.setVisibility(View.VISIBLE);
-        }
-        movie_genre.setText(genres);
-    }
-
-    private void setDuration(Integer runtime){
-        String detailsString = "";
-
-        if (runtime != null && runtime != 0) {
-            if (runtime < 60) {
-                detailsString += runtime + " min(s)";
-            } else {
-                detailsString += runtime / 60 + " hr " + runtime % 60 + " mins";
-            }
-        }
-
-        String x = movie_genre.getText().toString();
-        if(!x.equals("") && !detailsString.equals("")){
-            movie_genre_separator.setVisibility(View.VISIBLE);
-        }
-        movie_duration.setText(detailsString);
-    }
-
-    private void setTrailers() {
-        ApiInterface apiService = ApiClient.getMovieApi();
-        mMovieTrailersCall = apiService.getMovieVideos(movieId, Constants.API_KEY);
-        mMovieTrailersCall.enqueue(new Callback<TrailersResponse>() {
+    private void setGenres(int id) {
+        Call<List<MovieGenreDTO>> getListGenre = RetrofitService.getMovieService().getGenReByMovie(id);
+        getListGenre.enqueue(new Callback<List<MovieGenreDTO>>() {
             @Override
-            public void onResponse(Call<TrailersResponse> call, Response<TrailersResponse> response) {
-                if (!response.isSuccessful()) {
-                    mMovieTrailersCall = call.clone();
-                    mMovieTrailersCall.enqueue(this);
-                    return;
+            public void onResponse(Call<List<MovieGenreDTO>> call, Response<List<MovieGenreDTO>> response) {
+                if (response.isSuccessful()) {
+                    String genres = "";
+                    if (response.body() != null) {
+                        if(response.body().size() < 3) {
+                            for (int i = 0; i < response.body().size(); i++) {
+                                if (response.body().get(i) == null) continue;
+                                if (i == response.body().size() - 1) {
+                                    if(response.body().get(i).getName().equals("Science Fiction")) {
+                                        genres = genres.concat("Sci-Fi");
+                                    } else {
+                                        genres = genres.concat(response.body().get(i).getName());
+                                    }
+                                } else {
+                                    if(response.body().get(i).getName().equals("Science Fiction")) {
+                                        genres = genres.concat("Sci-Fi" + ", ");
+                                    } else {
+                                        genres = genres.concat(response.body().get(i).getName() + ", ");
+                                    }
+                                }
+                            }
+                        } else {
+                            for (int i = 0; i < 3; i++) {
+                                if (response.body().get(i) == null) continue;
+                                if (i == 2) {
+                                    if(response.body().get(i).getName().equals("Science Fiction")) {
+                                        genres = genres.concat("Sci-Fi");
+                                    } else {
+                                        genres = genres.concat(response.body().get(i).getName());
+                                    }
+                                } else {
+                                    if(response.body().get(i).getName().equals("Science Fiction")) {
+                                        genres = genres.concat("Sci-Fi" + ", ");
+                                    } else {
+                                        genres = genres.concat(response.body().get(i).getName() + ", ");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    String x = movie_year.getText().toString();
+                    if(!x.equals("") && !genres.equals("")){
+                        movie_year_separator.setVisibility(View.VISIBLE);
+                    }
+                    movie_genre.setText(genres);
                 }
-
-                if (response.body() == null) return;
-                if (response.body().getVideos() == null) return;
-
-                for (Trailer video : response.body().getVideos()) {
-                    if (video != null && video.getSite() != null && video.getSite().equals("YouTube") && video.getType() != null && video.getType().equals("Trailer"))
-                        mTrailers.add(video);
-                }
-
-                if(!mTrailers.isEmpty()) {
-                    movie_trailer_heading.setVisibility(View.VISIBLE);
-                }
-
-                mTrailerAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onFailure(Call<TrailersResponse> call, Throwable t) {
+            public void onFailure(Call<List<MovieGenreDTO>> call, Throwable t) {
 
             }
         });
     }
 
-    private void setCasts() {
-        ApiInterface apiService = ApiClient.getMovieApi();
-        mMovieCreditsCall = apiService.getMovieCredits(movieId, Constants.API_KEY);
-        mMovieCreditsCall.enqueue(new Callback<MovieCreditsResponse>() {
+    private void setDuration(String runtime){
+//        String detailsString = "";
+//
+//        if (runtime != null && runtime != 0) {
+//            if (runtime < 60) {
+//                detailsString += runtime + " min(s)";
+//            } else {
+//                detailsString += runtime / 60 + " hr " + runtime % 60 + " mins";
+//            }
+//        }
+//
+//        String x = movie_genre.getText().toString();
+//        if(!x.equals("") && !detailsString.equals("")){
+//            movie_genre_separator.setVisibility(View.VISIBLE);
+//        }
+        movie_duration.setText(runtime);
+    }
+
+//    private void setTrailers() {
+//        ApiInterface apiService = ApiClient.getMovieApi();
+//        mMovieTrailersCall = apiService.getMovieVideos(movieId, Constants.API_KEY);
+//        mMovieTrailersCall.enqueue(new Callback<TrailersResponse>() {
+//            @Override
+//            public void onResponse(Call<TrailersResponse> call, Response<TrailersResponse> response) {
+//                if (!response.isSuccessful()) {
+//                    mMovieTrailersCall = call.clone();
+//                    mMovieTrailersCall.enqueue(this);
+//                    return;
+//                }
+//
+//                if (response.body() == null) return;
+//                if (response.body().getVideos() == null) return;
+//
+//                for (Trailer video : response.body().getVideos()) {
+//                    if (video != null && video.getSite() != null && video.getSite().equals("YouTube") && video.getType() != null && video.getType().equals("Trailer"))
+//                        mTrailers.add(video);
+//                }
+//
+//                if(!mTrailers.isEmpty()) {
+//                    movie_trailer_heading.setVisibility(View.VISIBLE);
+//                }
+//
+//                mTrailerAdapter.notifyDataSetChanged();
+//            }
+//
+//            @Override
+//            public void onFailure(Call<TrailersResponse> call, Throwable t) {
+//
+//            }
+//        });
+//    }
+
+    private void setCasts(int id) {
+        mMovieCreditsCall = RetrofitService.getMovieService().getCastByMovie(id);
+        mMovieCreditsCall.enqueue(new Callback<List<MovieCastDTO>>() {
             @Override
-            public void onResponse(Call<MovieCreditsResponse> call, Response<MovieCreditsResponse> response) {
+            public void onResponse(Call<List<MovieCastDTO>> call, Response<List<MovieCastDTO>> response) {
                 if (!response.isSuccessful()) {
                     mMovieCreditsCall = call.clone();
                     mMovieCreditsCall.enqueue(this);
@@ -415,11 +428,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 }
 
                 if (response.body() == null) return;
-                if (response.body().getCasts() == null) return;
 
-                for (MovieCastBrief castBrief : response.body().getCasts()) {
-                    if (castBrief != null && castBrief.getName() != null)
-                        mCasts.add(castBrief);
+                for (MovieCastDTO castDTO : response.body()) {
+                    if (castDTO != null && castDTO.getName() != null)
+                        mCasts.add(castDTO);
                 }
 
                 if(!mCasts.isEmpty()) {
@@ -430,49 +442,49 @@ public class MovieDetailsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<MovieCreditsResponse> call, Throwable t) {
+            public void onFailure(Call<List<MovieCastDTO>> call, Throwable t) {
 
             }
         });
     }
-
-    private void setSimilarMovies() {
-        ApiInterface apiService = ApiClient.getMovieApi();
-        mSimilarMoviesCall = apiService.getSimilarMovies(movieId, Constants.API_KEY, 1);
-        mSimilarMoviesCall.enqueue(new Callback<SimilarMoviesResponse>() {
-            @Override
-            public void onResponse(Call<SimilarMoviesResponse> call, Response<SimilarMoviesResponse> response) {
-                if (!response.isSuccessful()) {
-                    mSimilarMoviesCall = call.clone();
-                    mSimilarMoviesCall.enqueue(this);
-                    return;
-                }
-
-                if (response.body() == null) return;
-                if (response.body().getResults() == null) return;
-
-                for (MovieBrief movieBrief : response.body().getResults()) {
-                    if (movieBrief != null && movieBrief.getTitle() != null && movieBrief.getPosterPath() != null)
-                        mSimilarMovies.add(movieBrief);
-                }
-
-                if(!mSimilarMovies.isEmpty()) {
-                    movie_recommended_heading.setVisibility(View.VISIBLE);
-                }
-
-                mSimilarMoviesAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<SimilarMoviesResponse> call, Throwable t) {
-
-            }
-        });
-    }
+//
+//    private void setSimilarMovies() {
+//        ApiInterface apiService = ApiClient.getMovieApi();
+//        mSimilarMoviesCall = apiService.getSimilarMovies(movieId, Constants.API_KEY, 1);
+//        mSimilarMoviesCall.enqueue(new Callback<SimilarMoviesResponse>() {
+//            @Override
+//            public void onResponse(Call<SimilarMoviesResponse> call, Response<SimilarMoviesResponse> response) {
+//                if (!response.isSuccessful()) {
+//                    mSimilarMoviesCall = call.clone();
+//                    mSimilarMoviesCall.enqueue(this);
+//                    return;
+//                }
+//
+//                if (response.body() == null) return;
+//                if (response.body().getResults() == null) return;
+//
+//                for (MovieBrief movieBrief : response.body().getResults()) {
+//                    if (movieBrief != null && movieBrief.getTitle() != null && movieBrief.getPosterPath() != null)
+//                        mSimilarMovies.add(movieBrief);
+//                }
+//
+//                if(!mSimilarMovies.isEmpty()) {
+//                    movie_recommended_heading.setVisibility(View.VISIBLE);
+//                }
+//
+//                mSimilarMoviesAdapter.notifyDataSetChanged();
+//            }
+//
+//            @Override
+//            public void onFailure(Call<SimilarMoviesResponse> call, Throwable t) {
+//
+//            }
+//        });
+//    }
 
     private void StreamMovie(){
         Intent intent = new Intent(this, MovieStreamActivity.class);
-        intent.putExtra("movie_id", movieId);
+        intent.putExtra("movie_stream", movieDetail);
         startActivity(intent);
     }
 }

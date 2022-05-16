@@ -2,7 +2,6 @@ package cf.vandit.movie_app.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,15 +27,10 @@ import cf.vandit.movie_app.activities.ViewAllMoviesActivity;
 import cf.vandit.movie_app.adapters.MovieBriefSmallAdapter;
 import cf.vandit.movie_app.adapters.MovieCarouselAdapter;
 import cf.vandit.movie_app.adapters.MoviesNestedRecViewAdapter;
-import cf.vandit.movie_app.network.movie.GenreMoviesResponse;
-import cf.vandit.movie_app.network.movie.MovieBrief;
-import cf.vandit.movie_app.network.movie.NowShowingMoviesResponse;
-import cf.vandit.movie_app.network.movie.PopularMoviesResponse;
-import cf.vandit.movie_app.network.movie.TopRatedMoviesResponse;
-import cf.vandit.movie_app.request.ApiClient;
-import cf.vandit.movie_app.request.ApiInterface;
+import cf.vandit.movie_app.retrofit.RetrofitService;
+import cf.vandit.movie_app.retrofit.dto.MovieDetailDTO;
+import cf.vandit.movie_app.retrofit.dto.MovieRate;
 import cf.vandit.movie_app.utils.Constants;
-import cf.vandit.movie_app.utils.NestedRecViewModel;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -45,7 +39,6 @@ public class MovieFragment extends Fragment {
 
     private ProgressBar mProgressBar;
 
-    private TextView mViewPopular;
     private TextView mViewTopRated;
 
     private Timer timer;
@@ -54,32 +47,26 @@ public class MovieFragment extends Fragment {
     private LinearLayoutManager carouselLayoutManager;
 
     private RecyclerView mNowShowingRecyclerView;
-    private List<MovieBrief> mNowShowingMovies;
+    private List<MovieDetailDTO> mNowShowingMovies;
     private MovieCarouselAdapter mNowShowingAdapter;
 
-    private RecyclerView mPopularMoviesRecyclerView;
-    private List<MovieBrief> mPopularMovies;
-    private MovieBriefSmallAdapter mPopularMoviesAdapter;
 
     private RecyclerView mTopRatedRecyclerView;
-    private List<MovieBrief> mTopRatedMovies;
+    private List<MovieDetailDTO> mTopRatedMovies;
     private MovieBriefSmallAdapter mTopRatedAdapter;
 
 
     private RecyclerView mNestedRecView;
-    private List<NestedRecViewModel> mNestedList;
+    private List<MovieDetailDTO> mNestedList;
     private MoviesNestedRecViewAdapter mMoviesNestedRecViewAdapter;
 
-    private ConstraintLayout mPopularHeading;
     private ConstraintLayout mTopRatedHeading;
 
     private boolean mNowShowingMoviesLoaded;
-    private boolean mPopularMoviesLoaded;
     private boolean mTopRatedMoviesLoaded;
 
-    Call<NowShowingMoviesResponse> mNowShowingMoviesCall;
-    Call<PopularMoviesResponse> mPopularMoviesCall;
-    Call<TopRatedMoviesResponse> mTopRatedMoviesCall;
+    Call<List<MovieDetailDTO>> mNowShowingMoviesCall;
+    Call<List<MovieRate>> mTopRatedMoviesCall;
 
     public MovieFragment() {
         // Required empty public constructor
@@ -98,27 +85,22 @@ public class MovieFragment extends Fragment {
 
         mProgressBar = view.findViewById(R.id.movie_progressBar);
 
-        mViewPopular = view.findViewById(R.id.view_popular);
         mViewTopRated = view.findViewById(R.id.view_top_rated);
 
         mNowShowingRecyclerView = view.findViewById(R.id.carousel_recView);
 
-        mPopularMoviesRecyclerView = view.findViewById(R.id.popular_recView);
         mTopRatedRecyclerView = view.findViewById(R.id.top_rated_recView);
 
-        mPopularHeading = view.findViewById(R.id.popular_heading);
         mTopRatedHeading = view.findViewById(R.id.top_rated_heading);
 
         mNestedRecView = view.findViewById(R.id.movie_nested_recView);
 
         mNowShowingMovies = new ArrayList<>();
-        mPopularMovies = new ArrayList<>();
         mTopRatedMovies = new ArrayList<>();
 
         mNestedList = new ArrayList<>();
 
         mNowShowingMoviesLoaded = false;
-        mPopularMoviesLoaded = false;
         mTopRatedMoviesLoaded = false;
 
         mNowShowingAdapter = new MovieCarouselAdapter(mNowShowingMovies, getContext());
@@ -127,11 +109,7 @@ public class MovieFragment extends Fragment {
         mNowShowingRecyclerView.setAdapter(mNowShowingAdapter);
         SnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(mNowShowingRecyclerView);
-        mNowShowingRecyclerView.smoothScrollBy(5,0);
-
-        mPopularMoviesAdapter = new MovieBriefSmallAdapter(mPopularMovies, getContext());
-        mPopularMoviesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        mPopularMoviesRecyclerView.setAdapter(mPopularMoviesAdapter);
+        mNowShowingRecyclerView.smoothScrollBy(5, 0);
 
         mTopRatedAdapter = new MovieBriefSmallAdapter(mTopRatedMovies, getContext());
         mTopRatedRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -155,14 +133,6 @@ public class MovieFragment extends Fragment {
             }
         });
 
-        mViewPopular.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), ViewAllMoviesActivity.class);
-                intent.putExtra(Constants.VIEW_ALL_MOVIES_TYPE, Constants.POPULAR_MOVIES_TYPE);
-                startActivity(intent);
-            }
-        });
 
         mViewTopRated.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -176,7 +146,7 @@ public class MovieFragment extends Fragment {
         initViews();
     }
 
-    private void stopAutoScrollCarousel(){
+    private void stopAutoScrollCarousel() {
         if (timer != null && timerTask != null) {
             timerTask.cancel();
             timer.cancel();
@@ -186,7 +156,7 @@ public class MovieFragment extends Fragment {
         }
     }
 
-    private void runAutoScrollingCarousel(){
+    private void runAutoScrollingCarousel() {
         if (timer == null && timerTask == null) {
             timer = new Timer();
             timerTask = new TimerTask() {
@@ -211,38 +181,16 @@ public class MovieFragment extends Fragment {
         }
     }
 
-    private void initViews(){
+    private void initViews() {
         loadNowShowingMovies();
-        loadPopularMovies();
         loadTopRatedMovies();
-//        loadActionMovies();
-//        loadAdventureMovies();
-//        loadAnimatedMovies();
-//        loadComedyMovies();
-//        loadCrimeMovies();
-//        loadDocumentaryMovies();
-//        loadDramaMovies();
-//        loadFamilyMovies();
-//        loadFantasyMovies();
-//        loadHistoryMovies();
-//        loadHorrorMovies();
-//        loadMusicMovies();
-//        loadMysteryMovies();
-//        loadRomanceMovies();
-//        loadSciFiMovies();
-//        loadTvMovies();
-//        loadThriller();
-//        loadWarMovies();
-//        loadWesternMovies();
     }
 
     private void loadNowShowingMovies() {
-        ApiInterface apiInterface = ApiClient.getMovieApi();
-        mNowShowingMoviesCall = apiInterface.getNowShowingMovies(Constants.API_KEY, 1, "US");
-        mNowShowingMoviesCall.enqueue(new Callback<NowShowingMoviesResponse>() {
+        mNowShowingMoviesCall = RetrofitService.getMovieService().getListMovie();
+        mNowShowingMoviesCall.enqueue(new Callback<List<MovieDetailDTO>>() {
             @Override
-            public void onResponse(Call<NowShowingMoviesResponse> call, Response<NowShowingMoviesResponse> response) {
-
+            public void onResponse(Call<List<MovieDetailDTO>> call, Response<List<MovieDetailDTO>> response) {
                 if (!response.isSuccessful()) {
                     mNowShowingMoviesCall = call.clone();
                     mNowShowingMoviesCall.enqueue(this);
@@ -250,11 +198,10 @@ public class MovieFragment extends Fragment {
                 }
 
                 if (response.body() == null) return;
-                if (response.body().getResults() == null) return;
 
-                for (MovieBrief movieBrief : response.body().getResults()) {
-                    if (movieBrief != null && movieBrief.getBackdropPath() != null)
-                        mNowShowingMovies.add(movieBrief);
+                for (MovieDetailDTO movieDetailDTO : response.body()) {
+                    if (movieDetailDTO != null && movieDetailDTO.getPoster() != null)
+                        mNowShowingMovies.add(movieDetailDTO);
                 }
                 mNowShowingAdapter.notifyDataSetChanged();
                 mNowShowingMoviesLoaded = true;
@@ -262,74 +209,37 @@ public class MovieFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<NowShowingMoviesResponse> call, Throwable t) {}
-        });
-    }
+            public void onFailure(Call<List<MovieDetailDTO>> call, Throwable t) {
 
-    private void loadPopularMovies() {
-        ApiInterface apiInterface = ApiClient.getMovieApi();
-        mPopularMoviesCall = apiInterface.getPopularMovies(Constants.API_KEY, 1);
-        mPopularMoviesCall.enqueue(new Callback<PopularMoviesResponse>() {
-            @Override
-            public void onResponse(Call<PopularMoviesResponse> call, Response<PopularMoviesResponse> response) {
-                if (!response.isSuccessful()) {
-                    mPopularMoviesCall = call.clone();
-                    mPopularMoviesCall.enqueue(this);
-                    return;
-                }
-
-                if (response.body() == null) return;
-                if (response.body().getResults() == null) return;
-
-                for (MovieBrief movieBrief : response.body().getResults()) {
-                    if (movieBrief != null && movieBrief.getPosterPath() != null)
-                        mPopularMovies.add(movieBrief);
-                }
-                mPopularMoviesAdapter.notifyDataSetChanged();
-                mPopularMoviesLoaded = true;
-                checkAllDataLoaded();
             }
-
-            @Override
-            public void onFailure(Call<PopularMoviesResponse> call, Throwable t) {}
         });
     }
-
     private void loadTopRatedMovies() {
-        ApiInterface apiInterface = ApiClient.getMovieApi();
-        mTopRatedMoviesCall = apiInterface.getTopRatedMovies(Constants.API_KEY, 1, "US");
-        mTopRatedMoviesCall.enqueue(new Callback<TopRatedMoviesResponse>() {
+        mTopRatedMoviesCall = RetrofitService.getMovieService().getMoveRates();
+        mTopRatedMoviesCall.enqueue(new Callback<List<MovieRate>>() {
             @Override
-            public void onResponse(Call<TopRatedMoviesResponse> call, Response<TopRatedMoviesResponse> response) {
-                if (!response.isSuccessful()) {
-                    mTopRatedMoviesCall = call.clone();
-                    mTopRatedMoviesCall.enqueue(this);
-                    return;
+            public void onResponse(Call<List<MovieRate>> call, Response<List<MovieRate>> response) {
+                if (response.isSuccessful()) {
+                    for (MovieRate movieRate : response.body()) {
+                        mTopRatedMovies.add(movieRate.getMovieDetailDTO());
+                    }
+                    mTopRatedAdapter.notifyDataSetChanged();
+                    mTopRatedMoviesLoaded = true;
+                    checkAllDataLoaded();
                 }
-
-                if (response.body() == null) return;
-                if (response.body().getResults() == null) return;
-
-                for (MovieBrief movieBrief : response.body().getResults()) {
-                    if (movieBrief != null && movieBrief.getPosterPath() != null)
-                        mTopRatedMovies.add(movieBrief);
-                }
-                mTopRatedAdapter.notifyDataSetChanged();
-                mTopRatedMoviesLoaded = true;
-                checkAllDataLoaded();
             }
 
             @Override
-            public void onFailure(Call<TopRatedMoviesResponse> call, Throwable t) {}
+            public void onFailure(Call<List<MovieRate>> call, Throwable t) {
+                System.out.println("\n\n\n\n throw:   "+ t);
+            }
         });
     }
 
-    private void checkAllDataLoaded(){
-        if(mNowShowingMoviesLoaded || mPopularMoviesLoaded || mTopRatedMoviesLoaded) {
+    private void checkAllDataLoaded() {
+        if (mNowShowingMoviesLoaded && mTopRatedMoviesLoaded) {
             mProgressBar.setVisibility(View.GONE);
             mNowShowingRecyclerView.setVisibility(View.VISIBLE);
-            mPopularHeading.setVisibility(View.VISIBLE);
-            mPopularMoviesRecyclerView.setVisibility(View.VISIBLE);
             mTopRatedHeading.setVisibility(View.VISIBLE);
             mTopRatedRecyclerView.setVisibility(View.VISIBLE);
         }

@@ -18,17 +18,23 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
-import cf.vandit.movie_app.activities.MovieDetailsActivity;
 import cf.vandit.movie_app.R;
-import cf.vandit.movie_app.network.movie.MovieBrief;
-import cf.vandit.movie_app.utils.Constants;
+import cf.vandit.movie_app.activities.MovieDetailsActivity;
+import cf.vandit.movie_app.retrofit.RetrofitService;
+import cf.vandit.movie_app.retrofit.dto.MovieDetailDTO;
+import cf.vandit.movie_app.retrofit.dto.MovieRate;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MovieCarouselAdapter extends RecyclerView.Adapter<MovieCarouselAdapter.MovieViewHolder> {
 
-    private List<MovieBrief> mMovies;
+    private List<MovieDetailDTO> mMovies;
     private Context mContext;
+    Call<MovieRate> movieRateCall;
+    double rateMovie;
 
-    public MovieCarouselAdapter(List<MovieBrief> mMovies, Context mContext) {
+    public MovieCarouselAdapter(List<MovieDetailDTO> mMovies, Context mContext) {
         this.mMovies = mMovies;
         this.mContext = mContext;
     }
@@ -41,18 +47,21 @@ public class MovieCarouselAdapter extends RecyclerView.Adapter<MovieCarouselAdap
 
     @Override
     public void onBindViewHolder(@NonNull MovieCarouselAdapter.MovieViewHolder holder, int position) {
-        Glide.with(mContext.getApplicationContext()).load(Constants.IMAGE_LOADING_BASE_URL_780 + mMovies.get(position).getBackdropPath())
+        System.out.println("\n\n\n\n Postion: " + position);
+        System.out.println("\n\n\n\n Id: " + mMovies.get(position).getId());
+        Glide.with(mContext.getApplicationContext()).load(mMovies.get(position).getPoster())
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.movie_imageView);
+        getRate(mMovies.get(position).getId());
 
         if (mMovies.get(position).getTitle() != null)
             holder.movie_title.setText(mMovies.get(position).getTitle());
         else
             holder.movie_title.setText("");
 
-        if (mMovies.get(position).getPopularity() != null)
-            holder.movie_rating.setText(String.format("%.1f", mMovies.get(position).getVoteAverage()));
+        if (true)
+            holder.movie_rating.setText(String.format("%.1f", rateMovie));
         else
             holder.movie_rating.setText("");
 
@@ -88,7 +97,7 @@ public class MovieCarouselAdapter extends RecyclerView.Adapter<MovieCarouselAdap
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, MovieDetailsActivity.class);
-                    intent.putExtra("movie_id", mMovies.get(getAdapterPosition()).getId());
+                    intent.putExtra("movie_detail", mMovies.get(getAdapterPosition()));
                     mContext.startActivity(intent);
                 }
             });
@@ -97,10 +106,28 @@ public class MovieCarouselAdapter extends RecyclerView.Adapter<MovieCarouselAdap
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, MovieDetailsActivity.class);
-                    intent.putExtra("movie_id", mMovies.get(getAdapterPosition()).getId());
+                    intent.putExtra("movie_detail", mMovies.get(getAdapterPosition()));
                     mContext.startActivity(intent);
                 }
             });
         }
+    }
+
+    public void getRate(int id) {
+        movieRateCall = RetrofitService.getMovieService().getMoveRate(id);
+        movieRateCall.enqueue(new Callback<MovieRate>() {
+            @Override
+            public void onResponse(Call<MovieRate> call, Response<MovieRate> response) {
+                if (response.isSuccessful()) {
+                    rateMovie = response.body().getRate();
+                    System.out.println("\n\n\n\n\n\n\n\n\nRated: " + rateMovie);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieRate> call, Throwable t) {
+
+            }
+        });
     }
 }

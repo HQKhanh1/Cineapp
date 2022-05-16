@@ -17,16 +17,15 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
 
-import cf.vandit.movie_app.activities.MovieDetailsActivity;
 import cf.vandit.movie_app.R;
-import cf.vandit.movie_app.network.movie.MovieBrief;
-import cf.vandit.movie_app.utils.Constants;
+import cf.vandit.movie_app.activities.MovieDetailsActivity;
+import cf.vandit.movie_app.retrofit.dto.MovieDetailDTO;
 
 public class MovieBriefSmallAdapter extends RecyclerView.Adapter<MovieBriefSmallAdapter.MovieViewHolder> {
-    private List<MovieBrief> mMovies;
+    private List<MovieDetailDTO> mMovies;
     private Context mContext;
 
-    public MovieBriefSmallAdapter(List<MovieBrief> mMovies, Context mContext) {
+    public MovieBriefSmallAdapter(List<MovieDetailDTO> mMovies, Context mContext) {
         this.mMovies = mMovies;
         this.mContext = mContext;
     }
@@ -39,7 +38,7 @@ public class MovieBriefSmallAdapter extends RecyclerView.Adapter<MovieBriefSmall
 
     @Override
     public void onBindViewHolder(@NonNull MovieBriefSmallAdapter.MovieViewHolder holder, int position) {
-        Glide.with(mContext.getApplicationContext()).load(Constants.IMAGE_LOADING_BASE_URL_342 + mMovies.get(position).getPosterPath())
+        Glide.with(mContext.getApplicationContext()).load(mMovies.get(position).getPoster())
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.movie_imageView);
@@ -75,7 +74,7 @@ public class MovieBriefSmallAdapter extends RecyclerView.Adapter<MovieBriefSmall
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, MovieDetailsActivity.class);
-                    intent.putExtra("movie_id", mMovies.get(getAdapterPosition()).getId());
+                    intent.putExtra("movie_detail", mMovies.get(getAdapterPosition()));
                     mContext.startActivity(intent);
                 }
             });

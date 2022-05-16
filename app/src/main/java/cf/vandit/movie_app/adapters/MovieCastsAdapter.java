@@ -19,14 +19,13 @@ import java.util.List;
 
 import cf.vandit.movie_app.R;
 import cf.vandit.movie_app.activities.CastActivity;
-import cf.vandit.movie_app.network.movie.MovieCastBrief;
-import cf.vandit.movie_app.utils.Constants;
+import cf.vandit.movie_app.retrofit.dto.MovieCastDTO;
 
 public class MovieCastsAdapter extends RecyclerView.Adapter<MovieCastsAdapter.CastViewHolder> {
     private Context mContext;
-    private List<MovieCastBrief> mCasts;
+    private List<MovieCastDTO> mCasts;
 
-    public MovieCastsAdapter(Context mContext, List<MovieCastBrief> mCasts) {
+    public MovieCastsAdapter(Context mContext, List<MovieCastDTO> mCasts) {
         this.mContext = mContext;
         this.mCasts = mCasts;
     }
@@ -40,7 +39,7 @@ public class MovieCastsAdapter extends RecyclerView.Adapter<MovieCastsAdapter.Ca
     @Override
     public void onBindViewHolder(@NonNull MovieCastsAdapter.CastViewHolder holder, int position) {
         Glide.with(mContext.getApplicationContext())
-                .load(Constants.IMAGE_LOADING_BASE_URL_342 + mCasts.get(position).getProfilePath())
+                .load(mCasts.get(position).getAvatar())
                 .centerCrop()
                 .placeholder(R.drawable.cast_placeholder)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -51,10 +50,14 @@ public class MovieCastsAdapter extends RecyclerView.Adapter<MovieCastsAdapter.Ca
         else
             holder.cast_actor_name.setText("");
 
-        if (mCasts.get(position).getCharacter() != null)
-            holder.cast_actor_alias.setText(mCasts.get(position).getCharacter());
+        if (mCasts.get(position) != null){
+
+            holder.cast_actor_alias.setText("Hehehehehehe");
+//            holder.cast_actor_alias.setText(mCasts.get(position).getCharacter());
+        }
+
         else
-            holder.cast_actor_alias.setText("");
+        holder.cast_actor_alias.setText("");
     }
 
     @Override
@@ -80,7 +83,7 @@ public class MovieCastsAdapter extends RecyclerView.Adapter<MovieCastsAdapter.Ca
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, CastActivity.class);
-                    intent.putExtra("person_id", mCasts.get(getAdapterPosition()).getId());
+                    intent.putExtra("person_cast", mCasts.get(getAdapterPosition()));
                     mContext.startActivity(intent);
                 }
             });
