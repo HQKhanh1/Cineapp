@@ -15,6 +15,10 @@ public class MovieDetailDTO implements Serializable {
     private List<Integer> releaseDate;
     private String movieDuration;
     private int viewNumber;
+    private List<FKCast> fkCasts;
+    private List<FKGenres> fkGenres;
+    private List<FKDirector> fkDirectors;
+    private List<MovieEvalute> movieEvaluates;
 
     public MovieDetailDTO() {
     }
@@ -30,6 +34,55 @@ public class MovieDetailDTO implements Serializable {
         this.releaseDate = releaseDate;
         this.movieDuration = movieDuration;
         this.viewNumber = viewNumber;
+    }
+
+    public MovieDetailDTO(int id, String title, String poster, String detail, Boolean movieStatus, String linkTrailer, String linkMovie, List<Integer> releaseDate, String movieDuration, int viewNumber, List<FKCast> fkCasts, List<FKGenres> fkGenres, List<FKDirector> fkDirectors, List<MovieEvalute> movieEvaluates) {
+        this.id = id;
+        this.title = title;
+        this.poster = poster;
+        this.detail = detail;
+        this.movieStatus = movieStatus;
+        this.linkTrailer = linkTrailer;
+        this.linkMovie = linkMovie;
+        this.releaseDate = releaseDate;
+        this.movieDuration = movieDuration;
+        this.viewNumber = viewNumber;
+        this.fkCasts = fkCasts;
+        this.fkGenres = fkGenres;
+        this.fkDirectors = fkDirectors;
+        this.movieEvaluates = movieEvaluates;
+    }
+
+    public List<FKCast> getFkCasts() {
+        return fkCasts;
+    }
+
+    public void setFkCasts(List<FKCast> fkCasts) {
+        this.fkCasts = fkCasts;
+    }
+
+    public List<FKGenres> getFkGenres() {
+        return fkGenres;
+    }
+
+    public void setFkGenres(List<FKGenres> fkGenres) {
+        this.fkGenres = fkGenres;
+    }
+
+    public List<FKDirector> getFkDirectors() {
+        return fkDirectors;
+    }
+
+    public void setFkDirectors(List<FKDirector> fkDirectors) {
+        this.fkDirectors = fkDirectors;
+    }
+
+    public List<MovieEvalute> getMovieEvaluates() {
+        return movieEvaluates;
+    }
+
+    public void setMovieEvaluates(List<MovieEvalute> movieEvaluates) {
+        this.movieEvaluates = movieEvaluates;
     }
 
     public int getId() {

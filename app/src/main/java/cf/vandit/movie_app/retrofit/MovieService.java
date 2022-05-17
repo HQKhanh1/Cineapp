@@ -4,11 +4,16 @@ import java.util.List;
 
 import cf.vandit.movie_app.retrofit.dto.MovieCastDTO;
 import cf.vandit.movie_app.retrofit.dto.MovieDetailDTO;
+import cf.vandit.movie_app.retrofit.dto.MovieEvaluateLoad;
+import cf.vandit.movie_app.retrofit.dto.MovieEvaluateResponse;
 import cf.vandit.movie_app.retrofit.dto.MovieGenreDTO;
 import cf.vandit.movie_app.retrofit.dto.MovieRate;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface MovieService {
 
@@ -35,6 +40,12 @@ public interface MovieService {
 
     @GET("/api/fkCast/movie/{castId}")
     Call<List<MovieDetailDTO>> getMovieByCastId(@Path("castId") int castId);
+
+    @PUT("/api/movieDetail/saveEvaluate")
+    Call<MovieDetailDTO> updateEvaluate(@Body MovieEvaluateResponse movieEvaluateResponse, @Query("movieId") int movieId, @Query("accId") int accId);
+
+    @GET("/api/movieDetail/loadEvaluate")
+    Call<List<MovieEvaluateLoad>> loadEvaluate(@Query("movieId") int movieId, @Query("accId") int accId);
 
 
 }

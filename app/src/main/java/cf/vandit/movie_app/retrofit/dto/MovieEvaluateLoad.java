@@ -2,39 +2,30 @@ package cf.vandit.movie_app.retrofit.dto;
 
 import java.io.Serializable;
 
-public class MovieEvaluateResponse implements Serializable {
-    private AccountInfo accountInfo;
-    private MovieDetailDTO movieDetailDTO;
+public class MovieEvaluateLoad implements Serializable {
+    private AccountInfo accountDTO;
     private int evaluateRate;
     private long evaluateTime;
     private String evaluateContent;
 
-    public MovieEvaluateResponse() {
+    public MovieEvaluateLoad() {
     }
 
-    public MovieEvaluateResponse(AccountInfo accountInfo, MovieDetailDTO movieDetailDTO, int evaluateRate, long evaluateTime, String evaluateContent) {
-        this.accountInfo = accountInfo;
-        this.movieDetailDTO = movieDetailDTO;
+    public MovieEvaluateLoad(AccountInfo accountInfo, int evaluateRate, long evaluateTime, String evaluateContent) {
+        this.accountDTO = accountInfo;
         this.evaluateRate = evaluateRate;
         this.evaluateTime = evaluateTime;
         this.evaluateContent = evaluateContent;
     }
 
     public AccountInfo getAccountInfo() {
-        return accountInfo;
+        return accountDTO;
     }
 
     public void setAccountInfo(AccountInfo accountInfo) {
-        this.accountInfo = accountInfo;
+        this.accountDTO = accountInfo;
     }
 
-    public MovieDetailDTO getMovieDetailDTO() {
-        return movieDetailDTO;
-    }
-
-    public void setMovieDetailDTO(MovieDetailDTO movieDetailDTO) {
-        this.movieDetailDTO = movieDetailDTO;
-    }
 
     public int getEvaluateRate() {
         return evaluateRate;

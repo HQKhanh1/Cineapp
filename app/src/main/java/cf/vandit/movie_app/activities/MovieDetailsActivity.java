@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +35,7 @@ import java.util.Date;
 import java.util.List;
 
 import cf.vandit.movie_app.R;
+import cf.vandit.movie_app.adapters.CommentAdapter;
 import cf.vandit.movie_app.adapters.MovieCastsAdapter;
 import cf.vandit.movie_app.database.DatabaseHelper;
 import cf.vandit.movie_app.database.movies.FavMovie;
@@ -41,6 +43,8 @@ import cf.vandit.movie_app.database.movies.MovieDatabase;
 import cf.vandit.movie_app.retrofit.RetrofitService;
 import cf.vandit.movie_app.retrofit.dto.MovieCastDTO;
 import cf.vandit.movie_app.retrofit.dto.MovieDetailDTO;
+import cf.vandit.movie_app.retrofit.dto.MovieEvaluateLoad;
+import cf.vandit.movie_app.retrofit.dto.MovieEvaluateResponse;
 import cf.vandit.movie_app.retrofit.dto.MovieGenreDTO;
 import cf.vandit.movie_app.retrofit.dto.MovieRate;
 import cf.vandit.movie_app.utils.Constants;
@@ -74,13 +78,15 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private TextView ratingNumber;
 
     private RatingBar movie_rating;
-    private int rating;
+    private int ratingChoose;
     private ImageView acc_img;
     private EditText acc_evaluate_content;
     private Date time_evaluate;
     private Button btn_add_evalaute;
+    private List<MovieEvaluateLoad> evaluateLoads;
 
     private RecyclerView movie_cast;
+
     private RecyclerView movie_recommended;
 
     private Call<MovieDetailDTO> mMovieDetailsCall;
@@ -89,6 +95,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private List<MovieCastDTO> mCasts;
 
     private MovieCastsAdapter mCastAdapter;
+    private CommentAdapter commentAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,8 +134,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
         acc_img = findViewById(R.id.acc_img);
         btn_add_evalaute = findViewById(R.id.movie_detail_add_comment_btn);
 
+        evaluateLoads = new ArrayList<>();
+        commentAdapter = new CommentAdapter(MovieDetailsActivity.this, evaluateLoads);
         movie_recommended = (RecyclerView) findViewById(R.id.movie_details_reviewcomment);
-        movie_recommended.setLayoutManager(new LinearLayoutManager(MovieDetailsActivity.this, LinearLayoutManager.HORIZONTAL, false));
+        movie_recommended.setAdapter(commentAdapter);
+        movie_recommended.setLayoutManager(new LinearLayoutManager(MovieDetailsActivity.this, LinearLayoutManager.VERTICAL, false));
 
         Intent receivedIntent = getIntent();
         movieDetail = (MovieDetailDTO) receivedIntent.getSerializableExtra("movie_detail");
@@ -136,6 +146,20 @@ public class MovieDetailsActivity extends AppCompatActivity {
         if (movieDetail == null) finish();
 
         final FavMovie favMovie = (FavMovie) getIntent().getSerializableExtra("name");
+
+        movie_rating.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                ratingChoose = (int) rating;
+            }
+        });
+        btn_add_evalaute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setSendComment();
+
+            }
+        });
 
         movie_stream_fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -211,6 +235,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 setGenres(response.body().getId());
                 setDuration(response.body().getMovieDuration());
                 setCasts(response.body().getId());
+                loadEvaluate(response.body().getId());
             }
 
             @Override
@@ -442,6 +467,72 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void setSendComment() {
+        List<MovieEvaluateResponse> movieEvalutes = new ArrayList<>();
+        MovieEvaluateResponse movieEvalute = new MovieEvaluateResponse();
+        movieEvalute.setMovieDetailDTO(movieDetail);
+        movieEvalute.setAccountInfo(MainActivity.accountInfo);
+        movieEvalute.setEvaluateContent(acc_evaluate_content.getText().toString());
+        movieEvalute.setEvaluateTime(new Date().getTime());
+        movieEvalute.setEvaluateRate(ratingChoose);
+        movieEvalutes.add(movieEvalute);
+        Call<MovieDetailDTO> sendEvaluate = RetrofitService.getMovieService().updateEvaluate(
+                movieEvalute, movieDetail.getId(), MainActivity.accountInfo.getId());
+        sendEvaluate.enqueue(new Callback<MovieDetailDTO>() {
+            @Override
+            public void onResponse(Call<MovieDetailDTO> call, Response<MovieDetailDTO> response) {
+                if (response.isSuccessful()){
+                    Toast.makeText(MovieDetailsActivity.this, "Successful evaluation!", Toast.LENGTH_SHORT).show();
+                    for (MovieEvaluateLoad movieEvaluateLoad: evaluateLoads) {
+                        if (movieEvaluateLoad.getAccountInfo() == movieEvalute.getAccountInfo()){
+                            evaluateLoads.remove(movieEvaluateLoad);
+                            MovieEvaluateLoad movieEvaluateLoad1 = new MovieEvaluateLoad();
+                            movieEvaluateLoad1.setAccountInfo(movieEvalute.getAccountInfo());
+                            movieEvaluateLoad1.setEvaluateRate(movieEvalute.getEvaluateRate());
+                            movieEvaluateLoad1.setEvaluateContent(movieEvalute.getEvaluateContent());
+                            movieEvaluateLoad1.setEvaluateTime(movieEvalute.getEvaluateTime());
+                            evaluateLoads.add(movieEvaluateLoad1);
+                            commentAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieDetailDTO> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void loadEvaluate(int id) {
+        Call<List<MovieEvaluateLoad>> loadEvaluateResponseCall = RetrofitService.getMovieService().loadEvaluate(id, MainActivity.accountInfo.getId());
+        loadEvaluateResponseCall.enqueue(new Callback<List<MovieEvaluateLoad>>() {
+            @Override
+            public void onResponse(Call<List<MovieEvaluateLoad>> call, Response<List<MovieEvaluateLoad>> response) {
+                if (response.isSuccessful()) {
+                    List<MovieEvaluateLoad> movieEvaluateLoads = response.body();
+                    for (MovieEvaluateLoad movieEvaluateLoad : movieEvaluateLoads) {
+                        evaluateLoads.add(movieEvaluateLoad);
+                    }
+                }
+                commentAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Call<List<MovieEvaluateLoad>> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private String timestampToString(long time) {
+        Date date = new Date(time);
+        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+        String a = df.format(date);
+        return a;
     }
 
     private void StreamMovie() {

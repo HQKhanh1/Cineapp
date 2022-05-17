@@ -12,6 +12,7 @@ public class LoginResponse {
     private String firstname;
     private String lastname;
     private String birthday;
+    private String town;
     private String address;
     private String phoneNumber;
     private boolean gender;

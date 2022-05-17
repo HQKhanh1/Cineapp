@@ -3,6 +3,7 @@ package cf.vandit.movie_app.retrofit.dto;
 import java.io.Serializable;
 
 public class AccountInfo implements Serializable {
+    private int id;
     private String username;
     private String password;
     private boolean enabled;
@@ -15,6 +16,14 @@ public class AccountInfo implements Serializable {
     private String phoneNumber;
     private boolean gender;
     private String authenticationToken;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getUsername() {
         return username;
