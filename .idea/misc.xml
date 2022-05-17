@@ -43,10 +43,17 @@
         <entry key="..\:/Yuno/Android/CuoiKy/Cineapp/app/src/main/res/layout/activity_login.xml" value="0.29936594202898553" />
         <entry key="..\:/Yuno/Android/CuoiKy/Cineapp/app/src/main/res/layout/activity_register.xml" value="0.29936594202898553" />
         <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/activity_change_password.xml" value="0.29936594202898553" />
-        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/activity_forgot_password.xml" value="0.1" />
+        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/activity_edit_profile.xml" value="0.29936594202898553" />
+        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/activity_forgot_password.xml" value="0.18489583333333334" />
         <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/activity_login.xml" value="0.29936594202898553" />
         <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/activity_profile.xml" value="0.29936594202898553" />
+        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/activity_register.xml" value="0.1408514492753623" />
+        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/activity_verify_email.xml" value="0.33" />
+        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/fragment_favourite_movie.xml" value="0.2441123188405797" />
+        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/fragment_favourite_series.xml" value="0.2441123188405797" />
+        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/fragment_favourites.xml" value="0.2441123188405797" />
         <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/fragment_profile.xml" value="0.29936594202898553" />
+        <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/layout/fragment_search.xml" value="0.2441123188405797" />
         <entry key="..\:/Yuno/Android/CuoiKy/p2/Cineapp/app/src/main/res/menu/bottom_navigation.xml" value="0.1" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2984375" />
         <entry key="app/src/main/res/drawable/background_gradient.xml" value="0.2984375" />

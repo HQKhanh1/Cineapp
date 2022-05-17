@@ -20,6 +20,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Movieapp">
         <activity
+            android:name=".activities.EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.VerifyEmail"
+            android:exported="false" />
+        <activity
             android:name=".activities.ForgotPassword"
             android:exported="false" />
         <activity

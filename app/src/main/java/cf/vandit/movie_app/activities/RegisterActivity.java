@@ -102,31 +102,37 @@ public class RegisterActivity extends AppCompatActivity {
         registerRequest.setLastname(lastName.getText().toString());
         registerRequest.setBirthday(birthday);
         registerRequest.setPassword(password.getText().toString());
-        System.out.println(registerRequest);
-
+        if (rdbMale.isChecked()){
+            registerRequest.setGender(true);
+        }else{
+            registerRequest.setGender(false);
+        }
         Call<RegisterResponse> registerResponseCall= RetrofitService.getAccountService().userRegister(registerRequest);
         registerResponseCall.enqueue(new Callback<RegisterResponse>() {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
-                if (response.isSuccessful() && response.body().getStatusCode() == null){
+                if (response.body().getStatusCode() == null){
                     Toast.makeText(RegisterActivity.this,"Register Successful", Toast.LENGTH_LONG).show();
                     RegisterResponse registerResponse= response.body();
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            System.err.println("call=="+call);
                             System.out.println(registerResponse);
-                            startActivity(new Intent(RegisterActivity.this, MainActivity.class).putExtra("data",registerResponse.getUsername()));
+                            startActivity(new Intent(RegisterActivity.this, VerifyEmail.class));
                         }
                     }, 700);
                 } else {
                     Toast.makeText(RegisterActivity.this,"Register Failed", Toast.LENGTH_LONG).show();
                 }
             }
-
             @Override
             public void onFailure(Call<RegisterResponse> call, Throwable t) {
+                System.err.println("call"+call);
+                startActivity(new Intent(RegisterActivity.this, VerifyEmail.class));
                 Toast.makeText(RegisterActivity.this,"Throwable "+t.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }
+
         });
     }
 

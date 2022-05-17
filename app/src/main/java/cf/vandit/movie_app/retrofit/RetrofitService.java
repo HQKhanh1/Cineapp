@@ -1,5 +1,8 @@
 package cf.vandit.movie_app.retrofit;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import cf.vandit.movie_app.utils.Constants;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -14,8 +17,13 @@ public class RetrofitService {
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
 
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+
+
         return new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .baseUrl(Constants.SPRING_BOOT_URL)
                 .client(okHttpClient)
                 .build();

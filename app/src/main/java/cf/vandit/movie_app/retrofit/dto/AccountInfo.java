@@ -1,6 +1,7 @@
 package cf.vandit.movie_app.retrofit.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class AccountInfo implements Serializable {
     private int id;
@@ -81,7 +82,7 @@ public class AccountInfo implements Serializable {
         this.lastname = lastname;
     }
 
-    public String getBirthday() {
+    public  String getBirthday() {
         return birthday;
     }
 
