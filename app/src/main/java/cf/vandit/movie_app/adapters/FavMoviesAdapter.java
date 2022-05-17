@@ -1,7 +1,6 @@
 package cf.vandit.movie_app.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +17,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.List;
 
 import cf.vandit.movie_app.R;
-import cf.vandit.movie_app.activities.MovieDetailsActivity;
 import cf.vandit.movie_app.database.movies.FavMovie;
-import cf.vandit.movie_app.utils.Constants;
 
 public class FavMoviesAdapter extends RecyclerView.Adapter<FavMoviesAdapter.ViewHolder> {
     private List<FavMovie> mMovies;
@@ -39,7 +36,7 @@ public class FavMoviesAdapter extends RecyclerView.Adapter<FavMoviesAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull FavMoviesAdapter.ViewHolder holder, int position) {
-        Glide.with(mContext.getApplicationContext()).load(Constants.IMAGE_LOADING_BASE_URL_342 + mMovies.get(position).getPoster_path())
+        Glide.with(mContext.getApplicationContext()).load(mMovies.get(position).getPoster_path())
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.movie_imageView);
@@ -71,14 +68,14 @@ public class FavMoviesAdapter extends RecyclerView.Adapter<FavMoviesAdapter.View
             movie_imageView.getLayoutParams().width = (int) (mContext.getResources().getDisplayMetrics().widthPixels * 0.31);
             movie_imageView.getLayoutParams().height = (int) ((mContext.getResources().getDisplayMetrics().widthPixels * 0.31) / 0.66);
 
-            movie_cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(mContext, MovieDetailsActivity.class);
-                    intent.putExtra("movie_id", mMovies.get(getAdapterPosition()).getMovie_id());
-                    mContext.startActivity(intent);
-                }
-            });
+//            movie_cardView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    Intent intent = new Intent(mContext, MovieDetailsActivity.class);
+//                    intent.putExtra("movie_id", mMovies.get(getAdapterPosition()).getMovie_id());
+//                    mContext.startActivity(intent);
+//                }
+//            });
         }
     }
 }

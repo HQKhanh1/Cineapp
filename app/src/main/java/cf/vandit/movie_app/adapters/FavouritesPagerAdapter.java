@@ -9,7 +9,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import cf.vandit.movie_app.fragments.FavouriteMoviesFragment;
-import cf.vandit.movie_app.fragments.FavouriteSeriesFragment;
 
 public class FavouritesPagerAdapter extends FragmentPagerAdapter {
     private Context mContext;
@@ -22,29 +21,17 @@ public class FavouritesPagerAdapter extends FragmentPagerAdapter {
     @NonNull
     @Override
     public Fragment getItem(int position) {
-        switch (position) {
-            case 0:
-                return new FavouriteMoviesFragment();
-            case 1:
-                return new FavouriteSeriesFragment();
-        }
-        return null;
+        return new FavouriteMoviesFragment();
     }
 
     @Override
     public int getCount() {
-        return 2;
+        return 1;
     }
 
     @Nullable
     @Override
     public CharSequence getPageTitle(int position) {
-        switch (position) {
-            case 0:
-                return "Movies";
-            case 1:
-                return "TV Shows";
-        }
-        return null;
+        return "Movies";
     }
 }

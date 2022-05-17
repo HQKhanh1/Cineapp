@@ -1,18 +1,19 @@
 package cf.vandit.movie_app.retrofit.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class MovieCastDTO implements Serializable {
     private int id;
     private String avatar;
     private String name;
     private String story;
-    private String birthday;
+    private List<Integer> birthday;
 
     public MovieCastDTO() {
     }
 
-    public MovieCastDTO(int id, String avatar, String name, String story, String birthday) {
+    public MovieCastDTO(int id, String avatar, String name, String story, List<Integer> birthday) {
         this.id = id;
         this.avatar = avatar;
         this.name = name;
@@ -52,11 +53,11 @@ public class MovieCastDTO implements Serializable {
         this.story = story;
     }
 
-    public String getBirthday() {
+    public List<Integer> getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(String birthday) {
+    public void setBirthday(List<Integer> birthday) {
         this.birthday = birthday;
     }
 }

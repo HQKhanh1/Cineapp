@@ -5,15 +5,14 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.PUT;
 
 public class RetrofitService {
-    private static Retrofit getRetrofit(){
+    private static Retrofit getRetrofit() {
 
-        HttpLoggingInterceptor httpLoggingInterceptor= new HttpLoggingInterceptor();
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
         httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-        OkHttpClient okHttpClient= new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
 
         return new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
@@ -22,11 +21,11 @@ public class RetrofitService {
                 .build();
     }
 
-    public static AccountService getAccountService(){
+    public static AccountService getAccountService() {
         return getRetrofit().create(AccountService.class);
     }
 
-    public static MovieService getMovieService(){
+    public static MovieService getMovieService() {
         return getRetrofit().create(MovieService.class);
     }
 }

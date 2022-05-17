@@ -25,26 +25,18 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.wang.avi.AVLoadingIndicatorView;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import cf.vandit.movie_app.R;
 import cf.vandit.movie_app.adapters.MovieCastsOfPersonAdapter;
-import cf.vandit.movie_app.adapters.SeriesCastsOfPersonAdapter;
-import cf.vandit.movie_app.network.cast.Person;
-import cf.vandit.movie_app.network.movie.MovieCastOfPerson;
-import cf.vandit.movie_app.network.movie.MovieCastsOfPersonResponse;
-import cf.vandit.movie_app.network.series.SeriesCastOfPerson;
-import cf.vandit.movie_app.network.series.SeriesCastsOfPersonResponse;
-import cf.vandit.movie_app.request.ApiClient;
-import cf.vandit.movie_app.request.ApiInterface;
+import cf.vandit.movie_app.retrofit.RetrofitService;
 import cf.vandit.movie_app.retrofit.dto.MovieCastDTO;
-import cf.vandit.movie_app.utils.Constants;
+import cf.vandit.movie_app.retrofit.dto.MovieDetailDTO;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 
 public class CastActivity extends AppCompatActivity {
     private MovieCastDTO mPersonId;
@@ -60,25 +52,17 @@ public class CastActivity extends AppCompatActivity {
     private TextView cast_name;
     private TextView cast_age_heading;
     private TextView cast_age;
-    private TextView cast_birthplace_heading;
-    private TextView cast_birthplace;
 
     private TextView cast_bio_heading;
     private TextView cast_bio;
     private TextView cast_read_more;
     private TextView cast_movie_heading;
     private RecyclerView cast_movie;
-    private TextView cast_tv_heading;
-    private RecyclerView cast_tv;
 
-    private Call<Person> mPersonDetailsCall;
-    private Call<MovieCastsOfPersonResponse> mMovieCastsOfPersonsCall;
-    private Call<SeriesCastsOfPersonResponse> mTVCastsOfPersonsCall;
+    private Call<List<MovieDetailDTO>> mMovieCasts;
 
-    private List<MovieCastOfPerson> mMovieCastOfPersons;
+    private List<MovieDetailDTO> mMovieCastOfPersons;
     private MovieCastsOfPersonAdapter mMovieCastsOfPersonAdapter;
-    private List<SeriesCastOfPerson> mSeriesCastOfPeople;
-    private SeriesCastsOfPersonAdapter mTVCastsOfPersonAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,8 +84,6 @@ public class CastActivity extends AppCompatActivity {
         cast_name = findViewById(R.id.cast_name);
         cast_age_heading = findViewById(R.id.cast_age_heading);
         cast_age = findViewById(R.id.cast_age);
-        cast_birthplace_heading = findViewById(R.id.cast_birthplace_heading);
-        cast_birthplace = findViewById(R.id.cast_birthplace);
 
         cast_bio_heading = findViewById(R.id.cast_bio_heading);
         cast_bio = findViewById(R.id.cast_bio);
@@ -113,13 +95,6 @@ public class CastActivity extends AppCompatActivity {
         mMovieCastsOfPersonAdapter = new MovieCastsOfPersonAdapter(CastActivity.this, mMovieCastOfPersons);
         cast_movie.setAdapter(mMovieCastsOfPersonAdapter);
         cast_movie.setLayoutManager(new LinearLayoutManager(CastActivity.this, LinearLayoutManager.HORIZONTAL, false));
-
-        cast_tv_heading = findViewById(R.id.cast_tv_heading);
-        cast_tv = findViewById(R.id.cast_tv);
-        mSeriesCastOfPeople = new ArrayList<>();
-        mTVCastsOfPersonAdapter = new SeriesCastsOfPersonAdapter(CastActivity.this, mSeriesCastOfPeople);
-        cast_tv.setAdapter(mTVCastsOfPersonAdapter);
-        cast_tv.setLayoutManager(new LinearLayoutManager(CastActivity.this, LinearLayoutManager.HORIZONTAL, false));
 
         setSupportActionBar(cast_toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -133,7 +108,7 @@ public class CastActivity extends AppCompatActivity {
         });
     }
 
-    private void loadActivity(){
+    private void loadActivity() {
         cast_appbar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
             if (appBarLayout.getTotalScrollRange() + verticalOffset == 0) {
                 if (mPersonId.getName() != null)
@@ -177,14 +152,14 @@ public class CastActivity extends AppCompatActivity {
             cast_bio_heading.setVisibility(View.VISIBLE);
             cast_bio.setText(mPersonId.getStory());
 
-            if(cast_bio.getLineCount() == 7){
+            if (cast_bio.getLineCount() == 7) {
                 cast_read_more.setVisibility(View.VISIBLE);
             } else {
                 cast_read_more.setVisibility(View.GONE);
             }
 
             cast_read_more.setOnClickListener(view -> {
-                if(cast_read_more.getText() == "Read more"){
+                if (cast_read_more.getText() == "Read more") {
                     cast_bio.setMaxLines(Integer.MAX_VALUE);
                     cast_read_more.setText("Read less");
                 } else {
@@ -195,40 +170,29 @@ public class CastActivity extends AppCompatActivity {
         }
 
         setAge(mPersonId.getBirthday());
-//        setMovieCast();
+        setMovieCast(mPersonId.getId());
     }
 
-    private void setAge(String dateOfBirthString) {
-        cast_age.setText(dateOfBirthString);
-        if (dateOfBirthString != null && !dateOfBirthString.trim().isEmpty()) {
-            SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy");
-            try {
-                cast_age.setText(sdf1.parse(dateOfBirthString).toString());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
+    private void setAge(List<Integer> dateOfBirthString) {
+        String birthday = new StringBuilder()
+                .append(dateOfBirthString.get(2))
+                .append("-")
+                .append(dateOfBirthString.get(1))
+                .append("-")
+                .append(dateOfBirthString.get(0)).toString();
+        cast_age.setText(birthday);
     }
 
-    private void setMovieCast(Integer personId) {
-        ApiInterface apiService = ApiClient.getMovieApi();
-        mMovieCastsOfPersonsCall = apiService.getMovieCastsOfPerson(personId, Constants.API_KEY);
-        mMovieCastsOfPersonsCall.enqueue(new Callback<MovieCastsOfPersonResponse>() {
+    private void setMovieCast(int castId) {
+        mMovieCasts = RetrofitService.getMovieService().getMovieByCastId(castId);
+        mMovieCasts.enqueue(new Callback<List<MovieDetailDTO>>() {
             @Override
-            public void onResponse(Call<MovieCastsOfPersonResponse> call, Response<MovieCastsOfPersonResponse> response) {
-                if (!response.isSuccessful()) {
-                    mMovieCastsOfPersonsCall = call.clone();
-                    mMovieCastsOfPersonsCall.enqueue(this);
-                    return;
-                }
-
+            public void onResponse(Call<List<MovieDetailDTO>> call, Response<List<MovieDetailDTO>> response) {
                 if (response.body() == null) return;
-                if (response.body().getCasts() == null) return;
 
-                for (MovieCastOfPerson movieCastOfPerson : response.body().getCasts()) {
+                for (MovieDetailDTO movieCastOfPerson : response.body()) {
                     if (movieCastOfPerson == null) return;
-                    if (movieCastOfPerson.getTitle() != null && movieCastOfPerson.getPosterPath() != null) {
+                    if (movieCastOfPerson.getTitle() != null && movieCastOfPerson.getPoster() != null) {
                         cast_movie_heading.setVisibility(View.VISIBLE);
                         mMovieCastOfPersons.add(movieCastOfPerson);
                     }
@@ -237,39 +201,10 @@ public class CastActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<MovieCastsOfPersonResponse> call, Throwable t) {
+            public void onFailure(Call<List<MovieDetailDTO>> call, Throwable t) {
 
             }
-        });
-    }
 
-    private void setTVShowCast(Integer personId) {
-        ApiInterface apiService = ApiClient.getMovieApi();
-        mTVCastsOfPersonsCall = apiService.getTVCastsOfPerson(personId, Constants.API_KEY);
-        mTVCastsOfPersonsCall.enqueue(new Callback<SeriesCastsOfPersonResponse>() {
-            @Override
-            public void onResponse(Call<SeriesCastsOfPersonResponse> call, Response<SeriesCastsOfPersonResponse> response) {
-                if (!response.isSuccessful()) {
-                    mTVCastsOfPersonsCall = call.clone();
-                    mTVCastsOfPersonsCall.enqueue(this);
-                    return;
-                }
-
-                if (response.body() == null) return;
-                if (response.body().getCasts() == null) return;
-
-                for (SeriesCastOfPerson seriesCastOfPerson : response.body().getCasts()) {
-                    if (seriesCastOfPerson == null) return;
-                    if (seriesCastOfPerson.getName() != null && seriesCastOfPerson.getPosterPath() != null) {
-                        cast_tv_heading.setVisibility(View.VISIBLE);
-                        mSeriesCastOfPeople.add(seriesCastOfPerson);
-                    }
-                }
-                mTVCastsOfPersonAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<SeriesCastsOfPersonResponse> call, Throwable t) {}
         });
     }
 

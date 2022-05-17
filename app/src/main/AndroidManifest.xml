@@ -39,18 +39,6 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.SeriesStreamActivity"
-            android:exported="false"
-            android:screenOrientation="sensorLandscape" />
-        <activity
-            android:name=".activities.ViewAllSeriesActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activities.SeriesDetailsActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".activities.ViewAllMoviesActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

@@ -112,30 +112,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/cast_age_heading" />
 
 
-                <TextView
-                    android:id="@+id/cast_birthplace_heading"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="32dp"
-                    android:layout_marginRight="8dp"
-                    android:text="Birthplace "
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold"
-                    app:layout_constraintLeft_toRightOf="@id/cast_cardView"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/cast_age" />
-
-                <TextView
-                    android:id="@+id/cast_birthplace"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="32dp"
-                    android:layout_marginRight="8dp"
-                    android:text="-"
-                    app:layout_constraintLeft_toRightOf="@id/cast_cardView"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/cast_birthplace_heading" />
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.appcompat.widget.Toolbar
@@ -206,25 +182,6 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/cast_movie"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
-
-            <TextView
-                android:id="@+id/cast_tv_heading"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginTop="16dp"
-                android:text="TV Cast"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/cast_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false" />

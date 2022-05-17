@@ -30,5 +30,11 @@ public interface MovieService {
     @GET("/api/movieDetail/getCastByMovieId/{id}")
     Call<List<MovieCastDTO>> getCastByMovie(@Path("id") int id);
 
+    @GET("/api/movieDetail/search/{searchKey}")
+    Call<List<MovieDetailDTO>> searchMovie(@Path("searchKey") String searchKey);
+
+    @GET("/api/fkCast/movie/{castId}")
+    Call<List<MovieDetailDTO>> getMovieByCastId(@Path("castId") int castId);
+
 
 }

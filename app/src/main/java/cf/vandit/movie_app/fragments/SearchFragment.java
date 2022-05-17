@@ -3,7 +3,6 @@ package cf.vandit.movie_app.fragments;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -99,9 +97,6 @@ public class SearchFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 query =  searchView.getText().toString().trim().toLowerCase();
-                SaveSearch saveSearch = new SaveSearch();
-                saveSearch.execute();
-
                 Intent intent = new Intent(getActivity(), SearchResultsActivity.class);
                 intent.putExtra("query", query);
                 startActivity(intent);

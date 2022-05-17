@@ -52,8 +52,7 @@ public class MovieCastsAdapter extends RecyclerView.Adapter<MovieCastsAdapter.Ca
 
         if (mCasts.get(position) != null){
 
-            holder.cast_actor_alias.setText("Hehehehehehe");
-//            holder.cast_actor_alias.setText(mCasts.get(position).getCharacter());
+            holder.cast_actor_alias.setText("");
         }
 
         else

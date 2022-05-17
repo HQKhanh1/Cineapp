@@ -32,7 +32,6 @@ public class MovieCarouselAdapter extends RecyclerView.Adapter<MovieCarouselAdap
     private List<MovieDetailDTO> mMovies;
     private Context mContext;
     Call<MovieRate> movieRateCall;
-    double rateMovie;
 
     public MovieCarouselAdapter(List<MovieDetailDTO> mMovies, Context mContext) {
         this.mMovies = mMovies;
@@ -47,25 +46,30 @@ public class MovieCarouselAdapter extends RecyclerView.Adapter<MovieCarouselAdap
 
     @Override
     public void onBindViewHolder(@NonNull MovieCarouselAdapter.MovieViewHolder holder, int position) {
-        System.out.println("\n\n\n\n Postion: " + position);
-        System.out.println("\n\n\n\n Id: " + mMovies.get(position).getId());
         Glide.with(mContext.getApplicationContext()).load(mMovies.get(position).getPoster())
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.movie_imageView);
-        getRate(mMovies.get(position).getId());
 
         if (mMovies.get(position).getTitle() != null)
             holder.movie_title.setText(mMovies.get(position).getTitle());
         else
             holder.movie_title.setText("");
 
-        if (true)
-            holder.movie_rating.setText(String.format("%.1f", rateMovie));
-        else
-            holder.movie_rating.setText("");
+        movieRateCall = RetrofitService.getMovieService().getMoveRate(mMovies.get(position).getId());
+        movieRateCall.enqueue(new Callback<MovieRate>() {
+            @Override
+            public void onResponse(Call<MovieRate> call, Response<MovieRate> response) {
+                if (response.isSuccessful()) {
+                    holder.movie_rating.setText(String.format("%.1f", response.body().getRate()));
+                }
+            }
 
-//        holder.movie_counter.setText(position + 1 + "/" + mMovies.size());
+            @Override
+            public void onFailure(Call<MovieRate> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -113,21 +117,4 @@ public class MovieCarouselAdapter extends RecyclerView.Adapter<MovieCarouselAdap
         }
     }
 
-    public void getRate(int id) {
-        movieRateCall = RetrofitService.getMovieService().getMoveRate(id);
-        movieRateCall.enqueue(new Callback<MovieRate>() {
-            @Override
-            public void onResponse(Call<MovieRate> call, Response<MovieRate> response) {
-                if (response.isSuccessful()) {
-                    rateMovie = response.body().getRate();
-                    System.out.println("\n\n\n\n\n\n\n\n\nRated: " + rateMovie);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MovieRate> call, Throwable t) {
-
-            }
-        });
-    }
 }

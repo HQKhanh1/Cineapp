@@ -19,14 +19,13 @@ import java.util.List;
 
 import cf.vandit.movie_app.R;
 import cf.vandit.movie_app.activities.MovieDetailsActivity;
-import cf.vandit.movie_app.network.movie.MovieCastOfPerson;
-import cf.vandit.movie_app.utils.Constants;
+import cf.vandit.movie_app.retrofit.dto.MovieDetailDTO;
 
 public class MovieCastsOfPersonAdapter extends RecyclerView.Adapter<MovieCastsOfPersonAdapter.MovieViewHolder> {
     private Context mContext;
-    private List<MovieCastOfPerson> mMovieCasts;
+    private List<MovieDetailDTO> mMovieCasts;
 
-    public MovieCastsOfPersonAdapter(Context mContext, List<MovieCastOfPerson> mMovieCasts) {
+    public MovieCastsOfPersonAdapter(Context mContext, List<MovieDetailDTO> mMovieCasts) {
         this.mContext = mContext;
         this.mMovieCasts = mMovieCasts;
     }
@@ -39,7 +38,7 @@ public class MovieCastsOfPersonAdapter extends RecyclerView.Adapter<MovieCastsOf
 
     @Override
     public void onBindViewHolder(@NonNull MovieCastsOfPersonAdapter.MovieViewHolder holder, int position) {
-        Glide.with(mContext.getApplicationContext()).load(Constants.IMAGE_LOADING_BASE_URL_342 + mMovieCasts.get(position).getPosterPath())
+        Glide.with(mContext.getApplicationContext()).load(mMovieCasts.get(position).getPoster())
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.moviePosterImageView);
@@ -49,10 +48,6 @@ public class MovieCastsOfPersonAdapter extends RecyclerView.Adapter<MovieCastsOf
         else
             holder.movieTitleTextView.setText("");
 
-        if (mMovieCasts.get(position).getCharacter() != null && !mMovieCasts.get(position).getCharacter().trim().isEmpty())
-            holder.castCharacterTextView.setText("as " + mMovieCasts.get(position).getCharacter());
-        else
-            holder.castCharacterTextView.setText("");
     }
 
     @Override
@@ -81,7 +76,7 @@ public class MovieCastsOfPersonAdapter extends RecyclerView.Adapter<MovieCastsOf
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, MovieDetailsActivity.class);
-                    intent.putExtra("movie_id", mMovieCasts.get(getAdapterPosition()).getId());
+                    intent.putExtra("movie_detail", mMovieCasts.get(getAdapterPosition()));
                     mContext.startActivity(intent);
                 }
             });
