@@ -1,6 +1,5 @@
 package cf.vandit.movie_app.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -16,7 +15,6 @@ import cf.vandit.movie_app.fragments.FavouritesFragment;
 import cf.vandit.movie_app.fragments.MovieFragment;
 import cf.vandit.movie_app.fragments.ProfileFragment;
 import cf.vandit.movie_app.fragments.SearchFragment;
-import cf.vandit.movie_app.fragments.SeriesFragment;
 import cf.vandit.movie_app.retrofit.dto.AccountInfo;
 
 public class MainActivity extends AppCompatActivity {
