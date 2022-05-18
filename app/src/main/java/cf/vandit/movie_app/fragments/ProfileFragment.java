@@ -1,5 +1,6 @@
 package cf.vandit.movie_app.fragments;
 
+
 import static cf.vandit.movie_app.utils.Constants.timestampToString;
 
 import android.content.Intent;
