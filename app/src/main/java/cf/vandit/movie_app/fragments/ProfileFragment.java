@@ -17,12 +17,13 @@ import androidx.fragment.app.Fragment;
 import cf.vandit.movie_app.R;
 import cf.vandit.movie_app.activities.ChangePasswordActivity;
 import cf.vandit.movie_app.activities.EditProfileActivity;
+import cf.vandit.movie_app.activities.LoginActivity;
 import cf.vandit.movie_app.activities.MainActivity;
 import cf.vandit.movie_app.retrofit.dto.AccountInfo;
 
 public class ProfileFragment extends Fragment {
     TextView firstname,lastname, birthday, gender, email, changePassword;
-    Button btnEditProfile;
+    Button btnEditProfile, btnLogout;
     String query;
     AccountInfo accountInfo;
 
@@ -52,6 +53,7 @@ public class ProfileFragment extends Fragment {
         email= view.findViewById(R.id.email);
         changePassword= view.findViewById(R.id.changePassword);
         btnEditProfile= view.findViewById(R.id.btnEditProfile);
+        btnLogout= view.findViewById(R.id.btnLogout);
         firstname.setText(accountInfo.getFirstname());
         lastname.setText(accountInfo.getLastname());
 
@@ -80,6 +82,14 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getActivity(), EditProfileActivity.class));
+            }
+        });
+
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.accountInfo= null;
+                startActivity(new Intent(getActivity(), LoginActivity.class));
             }
         });
     }
