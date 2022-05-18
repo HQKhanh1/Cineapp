@@ -1,7 +1,6 @@
 package cf.vandit.movie_app.retrofit.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 
 public class AccountInfo implements Serializable {
     private int id;
@@ -12,7 +11,7 @@ public class AccountInfo implements Serializable {
     private String avatar;
     private String firstname;
     private String lastname;
-    private String birthday;
+    private long birthday;
     private String address;
     private String phoneNumber;
     private boolean gender;
@@ -82,11 +81,11 @@ public class AccountInfo implements Serializable {
         this.lastname = lastname;
     }
 
-    public  String getBirthday() {
+    public  long getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(String birthday) {
+    public void setBirthday(long birthday) {
         this.birthday = birthday;
     }
 
@@ -125,7 +124,7 @@ public class AccountInfo implements Serializable {
     public AccountInfo() {
     }
 
-    public AccountInfo(String username, String password, boolean enabled, String email, String avatar, String firstname, String lastname, String birthday, String address, String phoneNumber, boolean gender, String authenticationToken) {
+    public AccountInfo(String username, String password, boolean enabled, String email, String avatar, String firstname, String lastname, long birthday, String address, String phoneNumber, boolean gender, String authenticationToken) {
         this.username = username;
         this.password = password;
         this.enabled = enabled;

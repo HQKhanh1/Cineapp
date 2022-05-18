@@ -1,5 +1,7 @@
 package cf.vandit.movie_app.fragments;
 
+import static cf.vandit.movie_app.utils.Constants.timestampToString;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,16 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import java.math.BigInteger;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Date;
-import java.util.Locale;
 
 import cf.vandit.movie_app.R;
 import cf.vandit.movie_app.activities.ChangePasswordActivity;
@@ -63,7 +55,7 @@ public class ProfileFragment extends Fragment {
         firstname.setText(accountInfo.getFirstname());
         lastname.setText(accountInfo.getLastname());
 
-        birthday.setText(accountInfo.getBirthday());
+        birthday.setText(timestampToString(accountInfo.getBirthday()));
 
 
         if (accountInfo.isGender()){

@@ -528,12 +528,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private String timestampToString(long time) {
-        Date date = new Date(time);
-        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-        String a = df.format(date);
-        return a;
-    }
+
 
     private void StreamMovie() {
         Intent intent = new Intent(this, MovieStreamActivity.class);
