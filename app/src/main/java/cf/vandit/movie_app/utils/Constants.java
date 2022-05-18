@@ -1,5 +1,8 @@
 package cf.vandit.movie_app.utils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Constants {
     public static final String API_KEY = "e86784e99f17cd9b8e35fcc922379812";
     public static final String YOUTUBE_API_KEY = "YOUTUBE-API-KEY";
@@ -28,4 +31,10 @@ public class Constants {
 
     public static final int TAG_FAV = 0;
     public static final int TAG_NOT_FAV = 1;
+    public static String timestampToString(long time) {
+        Date date = new Date(time);
+        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+        String a = df.format(date);
+        return a;
+    }
 }
