@@ -86,7 +86,7 @@ public class RegisterActivity extends AppCompatActivity {
                         || TextUtils.isEmpty(firstName.getText().toString()) || TextUtils.isEmpty(lastName.getText().toString())
                         || TextUtils.isEmpty(password.getText().toString()) || TextUtils.isEmpty(confirmPassword.getText().toString())
                         || gender.equals("-1") || birthday == null) {
-                    Toast.makeText(RegisterActivity.this, "Username / Password Required", Toast.LENGTH_LONG);
+                    Toast.makeText(RegisterActivity.this, "Username / Password / Required", Toast.LENGTH_LONG).show();
                 } else {
                     signup();
                 }
@@ -101,7 +101,12 @@ public class RegisterActivity extends AppCompatActivity {
         registerRequest.setFirstname(firstName.getText().toString());
         registerRequest.setLastname(lastName.getText().toString());
         registerRequest.setBirthday(birthday);
-        registerRequest.setPassword(password.getText().toString());
+        if (password.getText().toString().equals(confirmPassword.getText().toString())){
+            registerRequest.setPassword(password.getText().toString());
+        } else {
+            Toast.makeText(RegisterActivity.this, "Password does not match", Toast.LENGTH_LONG).show();
+        }
+
         if (rdbMale.isChecked()){
             registerRequest.setGender(true);
         }else{
